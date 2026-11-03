@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="./style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
     <title>Team Group project</title>
 </head>
-<body>
-   <main class="container pb-5">
 
-       <div class="row g-4">
+<body>
+    <main class="container pb-5">
+
+        <div class="row g-4">
             <section class="col-lg-6">
                 <div class="form-panel  rounded-4 p-4">
                     <h2 class="h4 fw-bold mb-1">Create a portfolio</h2>
@@ -18,19 +21,19 @@
                     <form id="profile-form">
                         <label class="form-label" for="displayName">Name</label>
                         <input class="form-control mb-3" id="displayName" required maxlength="80"
-                               placeholder="e.g. John Justice">
+                            placeholder="e.g. John Justice">
 
                         <label class="form-label" for="enjoy">What I enjoy</label>
-                        <input class="form-control mb-3" id="enjoy" required  placeholder="e.g. Designing websites">
+                        <input class="form-control mb-3" id="enjoy" required placeholder="e.g. Designing websites">
 
                         <label class="form-label" for="tried">What I've tried</label>
-                        <input class="form-control mb-3" id="tried" required  placeholder="e.g. My first group project">
+                        <input class="form-control mb-3" id="tried" required placeholder="e.g. My first group project">
 
                         <label class="form-label" for="curious">What I'm curious about</label>
-                        <input class="form-control mb-3" id="curious" required   placeholder="e.g. Cloud computing">
+                        <input class="form-control mb-3" id="curious" required placeholder="e.g. Cloud computing">
                         <p class="form-error small mb-2" id="profile-error" role="alert"></p>
-                        
-                        
+
+
                         <div class="d-flex gap-2">
                             <button class="btn btn-success flex-grow-1" type="submit">Submit</button>
                         </div>
@@ -38,70 +41,105 @@
 
                 </div>
 
-             </section>
+            </section>
 
-    <section>
+            <section>
+                <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
 
-    <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
+                <div id="portfolio-container" class="Portfolio-Items">
+                    <form class="portfolio-form">
 
-    <div id="portfolio-container" class="Portfolio-Items">
+                        <div>
+                            <label class="form-label" for="displayTitle">Title</label>
+                            <input class="form-control mb-3" id="displayTitle" name="title" type="text" required
+                                maxlength="1000" placeholder="e.g. My first group project">
+                        </div>
 
- 
-        <form class="portfolio-form">
+                        <div>
+                            <label class="form-label" for="displayType">Type</label>
+                            <input class="form-control mb-3" id="displayType" name="type" type="text" required
+                                maxlength="1000" placeholder="e.g. Website">
+                        </div>
 
-            <label class="Items" for="displayTitle">Title</label>
-            <input class="form-control mb-3" id="displayTitle"
-                   name="title" required maxlength="1000"
-                   placeholder="e.g. My first group project">
+                        <div>
+                            <label class="form-label" for="displayDate">Date</label>
+                            <input class="form-control mb-3" id="displayDate" name="date" type="date" required>
+                        </div>
 
-            <label class="Items" for="displayType">Type</label>
-            <input class="form-control mb-3" id="displayType"
-                   name="type" required maxlength="1000"
-                   placeholder="e.g. Website">
+                        <div>
+                            <label class="form-label" for="displayRole">Role Description</label>
+                            <input class="form-control mb-3" id="displayRole" name="role" type="text" required
+                                placeholder="e.g. Team Lead">
+                        </div>
 
-            <label class="form-label" for="displayDate">Date</label>
-            <input class="form-control mb-3" id="displayDate"
-                   name="date" type="date" required>
+                        <div>
+                            <label class="form-label">Skills</label>
 
-            <label class="form-label" for="displayRole">Role Description</label>
-            <input class="form-control mb-3" id="displayRole"
-                   name="role" required
-                   placeholder="e.g. Team Lead">
+                            <div class="skills-container">
+                                <div class="d-flex gap-2 mb-2 skill-item">
+                                    <input class="form-control" name="skills" type="text" required
+                                        placeholder="e.g. HTML">
 
-            <label class="form-label" for="displaySkills">Skills</label>
-            <input class="form-control mb-3" id="displaySkills"
-                   name="skills" required
-                   placeholder="e.g. Cloud computing">
+                                    <button type="button" class="btn btn-danger delete-field">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
 
-            <label class="form-label" for="displayReflection">Reflection</label>
-            <input class="form-control mb-3" id="displayReflection"
-                   name="reflection" required
-                   placeholder="e.g. I learned a lot about teamwork and communication.">
+                            <button type="button" class="btn btn-outline-primary btn-sm add-skill mb-3">
+                                + Add Skill
+                            </button>
+                        </div>
 
-            <label class="form-label" for="displayEvidence">Evidence</label>
-            <input class="form-control mb-3" id="displayEvidence"
-                   name="evidence" required
-                   placeholder="e.g. Link to project or documentation">
+                        <div>
+                            <label class="form-label" for="displayReflection">Reflection</label>
+                            <textarea class="form-control mb-3" id="displayReflection" name="reflection" required
+                                placeholder="e.g. I learned a lot about teamwork and communication."></textarea>
+                        </div>
 
-            <p class="form-error small mb-2" role="alert"></p>
+                        <div>
+                            <label class="form-label">Evidence</label>
 
-            <div class="d-flex gap-2">
+                            <div class="evidence-container">
+                                <div class="d-flex gap-2 mb-2 evidence-item">
+                                    <input class="form-control" name="evidence" type="url" required
+                                        placeholder="e.g. https://example.com/project">
 
-                <button class="btn btn-success flex-grow-1" type="submit">Submit</button>
+                                    <button type="button" class="btn btn-danger delete-evidence">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
 
-                <button class="btn btn-danger delete-portfolio" type="button">Delete</button>
-            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm add-evidence mb-3">
+                                + Add Evidence
+                            </button>
+                        </div>
 
-        </form>
+                        <p class="form-error small mb-2" role="alert"></p>
 
-    </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-grow-1" type="submit">
+                                Submit
+                            </button>
 
-    <button type="button" id="add-portfolio" class="btn btn-primary mt-3">+ Add Portfolio Item</button>
+                            <button class="btn btn-danger delete-portfolio" type="button">
+                                Delete
+                            </button>
+                        </div>
 
-</section>
+                    </form>
+                </div>
 
-             
-             <section class="col-lg-6">
+                <button type="button" id="add-portfolio" class="btn btn-primary mt-3">
+                    + Add Portfolio Item
+                </button>
+
+                <div id="portfolio-display" class="mt-4"></div>
+                
+            </section>
+
+            <section class="col-lg-6">
 
                 <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
                     <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
@@ -111,10 +149,11 @@
                     <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
                 </div>
 
-                
+
             </section>
-        </div> 
-   </main>
-   <script src="./app.js"></script>
+        </div>
+    </main>
+    <script src="./app.js"></script>
 </body>
+
 </html>
