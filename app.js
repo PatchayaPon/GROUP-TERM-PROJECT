@@ -1,6 +1,8 @@
 
 const form = document.querySelector('#profile-form');
 const STORAGE_KEY = 'portfolio';
+const container = document.getElementById("portfolio-container");
+const addButton = document.getElementById("add-portfolio");
 
 function showPortfolio(portfolio) {
     document.querySelector('#portfolio-name').textContent = portfolio.displayName;
@@ -40,3 +42,53 @@ if (savedData !== null) {
     }
 }
 
+
+addButton.addEventListener("click", function () {
+
+    const firstForm = container.querySelector(".portfolio-form");
+
+    const newForm = firstForm.cloneNode(true);
+
+    newForm.querySelectorAll("input").forEach(function (input) {
+        input.value = "";
+    });
+
+    newForm.querySelector(".form-error").textContent = "";
+
+    newForm.querySelectorAll("[id]").forEach(function (element) {
+
+        const oldId = element.id;
+        const newId = oldId + "-" + Date.now();
+
+        element.id = newId;
+
+        newForm.querySelectorAll("label").forEach(function (label) {
+
+            if (label.htmlFor === oldId) {
+                label.htmlFor = newId;
+            }
+
+        });
+
+    });
+
+    container.appendChild(newForm);
+
+});
+
+
+container.addEventListener("click", function (event) {
+
+    const deleteButton = event.target.closest(".delete-portfolio");
+
+    if (deleteButton) {
+
+        const portfolioForm = deleteButton.closest(".portfolio-form");
+
+        if (portfolioForm) {
+            portfolioForm.remove();
+        }
+
+    }
+
+});
