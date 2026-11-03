@@ -3,6 +3,9 @@ const STORAGE_KEY = 'portfolio';
 const container = document.getElementById("portfolio-container");
 const addButton = document.getElementById("add-portfolio");
 
+const PORTFOLIO_ITEMS_KEY = 'portfolioItems';
+const portfolioDisplay = document.getElementById("portfolio-display");
+
 function showPortfolio(portfolio) {
     document.querySelector('#portfolio-name').textContent = portfolio.displayName;
     document.querySelector('#portfolio-enjoy').textContent = portfolio.whatIEnjoy;
@@ -159,125 +162,101 @@ container.addEventListener("click", function (event) {
         }
 
     }
+});
 
-    const PORTFOLIO_ITEMS_KEY = 'portfolioItems';
-    const portfolioDisplay = document.getElementById("portfolio-display");
+function showPortfolioItems(items) {
+    portfolioDisplay.innerHTML = "";
 
-    function showPortfolioItems(items) {
-        portfolioDisplay.innerHTML = "";
+    items.forEach(function (item) {
+        const card = document.createElement("div");
+        card.className = "card border-0 shadow-sm rounded-4 p-4 mb-3";
 
-        items.forEach(function (item) {
-            const card = document.createElement("div");
-            card.className = "card border-0 shadow-sm rounded-4 p-4 mb-3";
+        const title = document.createElement("h3");
+        title.className = "h5 fw-bold";
+        title.textContent = item.title;
 
-            const title = document.createElement("h3");
-            title.className = "h5 fw-bold";
-            title.textContent = item.title;
+        const type = document.createElement("p");
+        type.textContent = "Type: " + item.type;
 
-            const type = document.createElement("p");
-            type.textContent = "Type: " + item.type;
+        const date = document.createElement("p");
+        date.textContent = "Date: " + item.date;
 
-            const date = document.createElement("p");
-            date.textContent = "Date: " + item.date;
+        const role = document.createElement("p");
+        role.textContent = "Role: " + item.role;
 
-            const role = document.createElement("p");
-            role.textContent = "Role: " + item.role;
+        const skills = document.createElement("p");
+        skills.textContent = "Skills: " + item.skills.join(", ");
 
-            const skills = document.createElement("p");
-            skills.textContent = "Skills: " + item.skills.join(", ");
+        const reflection = document.createElement("p");
+        reflection.textContent = "Reflection: " + item.reflection;
 
-            const reflection = document.createElement("p");
-            reflection.textContent = "Reflection: " + item.reflection;
+        const evidence = document.createElement("div");
+        evidence.textContent = "Evidence: " + item.evidence.join(", ");
 
-            const evidence = document.createElement("div");
-            evidence.textContent = "Evidence: " + item.evidence.join(", ");
+        card.append(title, type, date, role, skills, reflection, evidence);
+        portfolioDisplay.appendChild(card);
+    });
+}
 
-            card.append(
-                title,
-                type,
-                date,
-                role,
-                skills,
-                reflection,
-                evidence
-            );
+function getSavedPortfolioItems() {
+    const savedItems = localStorage.getItem(PORTFOLIO_ITEMS_KEY);
+    if (savedItems !== null) {
+        try {
+            return JSON.parse(savedItems);
+        } catch (error) {
+            console.error("Could not restore Portfolio Items:", error);
+        }
+    }
+    return [];
+}
 
-            portfolioDisplay.appendChild(card);
-        });
+container.addEventListener("submit", function (event) {
+    const portfolioForm = event.target.closest(".portfolio-form");
+
+    if (!portfolioForm) {
+        return;
     }
 
-    function getSavedPortfolioItems() {
-        const savedItems = localStorage.getItem(PORTFOLIO_ITEMS_KEY);
+    event.preventDefault();
 
-        if (savedItems !== null) {
-            try {
-                return JSON.parse(savedItems);
-            } catch (error) {
-                console.error("Could not restore Portfolio Items:", error);
-            }
-        }
-
-        return [];
+    // ทำการ Validate ก่อนบันทึกข้อมูล
+    if (!validatePortfolioForm(portfolioForm)) {
+        return; // หยุดการทำงานและไม่บันทึกข้อมูลหากไม่ผ่าน
     }
 
-    container.addEventListener("submit", function (event) {
-        const portfolioForm = event.target.closest(".portfolio-form");
-
-        if (!portfolioForm) {
-            return;
-        }
-
-        event.preventDefault();
-
-        if (!portfolioForm.checkValidity()) {
-            portfolioForm.reportValidity();
-            return;
-        }
-
-        const skills = Array.from(
-            portfolioForm.querySelectorAll('.skills-container input[name="skills"]')
-        )
-            .map(function (input) {
-                return input.value.trim();
-            })
-            .filter(function (skill) {
-                return skill !== "";
-            });
-
-        const evidence = Array.from(
-            portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]')
-        )
-            .map(function (input) {
-                return input.value.trim();
-            })
-            .filter(function (link) {
-                return link !== "";
-            });
-
-        const portfolioItem = {
-            title: portfolioForm.querySelector('[name="title"]').value.trim(),
-            type: portfolioForm.querySelector('[name="type"]').value.trim(),
-            date: portfolioForm.querySelector('[name="date"]').value,
-            role: portfolioForm.querySelector('[name="role"]').value.trim(),
-            skills: skills,
-            reflection: portfolioForm.querySelector('[name="reflection"]').value.trim(),
-            evidence: evidence
-        };
-
-        const portfolioItems = getSavedPortfolioItems();
-
-        portfolioItems.push(portfolioItem);
-
-        localStorage.setItem(
-            PORTFOLIO_ITEMS_KEY,
-            JSON.stringify(portfolioItems)
-        );
-
-        showPortfolioItems(portfolioItems);
-
-        portfolioForm.reset();
+    const skills = Array.from(
+        portfolioForm.querySelectorAll('.skills-container input[name="skills"]')
+    ).map(function (input) {
+        return input.value.trim();
     });
 
-    showPortfolioItems(getSavedPortfolioItems());
+    const evidence = Array.from(
+        portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]')
+    ).map(function (input) {
+        return input.value.trim();
+    });
 
+    const portfolioItem = {
+        title: portfolioForm.querySelector('[name="title"]').value.trim(),
+        type: portfolioForm.querySelector('[name="type"]').value.trim(),
+        date: portfolioForm.querySelector('[name="date"]').value,
+        role: portfolioForm.querySelector('[name="role"]').value.trim(),
+        skills: skills,
+        reflection: portfolioForm.querySelector('[name="reflection"].value.trim()') || portfolioForm.querySelector('[name="reflection"]').value.trim(),
+        evidence: evidence
+    };
+
+    const portfolioItems = getSavedPortfolioItems();
+    portfolioItems.push(portfolioItem);
+
+    localStorage.setItem(
+        PORTFOLIO_ITEMS_KEY,
+        JSON.stringify(portfolioItems)
+    );
+
+    showPortfolioItems(portfolioItems);
+    portfolioForm.reset();
+    portfolioForm.querySelector(".form-error").textContent = "";
 });
+
+showPortfolioItems(getSavedPortfolioItems());
