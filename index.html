@@ -15,115 +15,139 @@
 
         <div class="row g-4">
             <section class="col-lg-6">
-                <div class="form-panel  rounded-4 p-4">
-                    <h2 class="h4 fw-bold mb-1">Create a portfolio</h2>
+                <div class="form-panel rounded-4 p-4 shadow-sm border">
+                    <div class="d-flex align-items-center mb-1">
+                        <span class="badge bg-light text-success border px-2 py-1 me-2 rounded-2 fw-bold">01</span>
+                        <h2 class="h4 fw-bold mb-0">Create your portfolio</h2>
+                    </div>
+                    <p class="text-muted small mb-3">A few words about you. You can change them anytime.</p>
 
-                    <form id="profile-form">
-                        <label class="form-label" for="displayName">Name</label>
-                        <input class="form-control mb-3" id="displayName" required maxlength="80"
-                            placeholder="e.g. John Justice">
+                    <form id="profile-form" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="displayName">Name *</label>
+                            <input class="form-control" id="displayName" maxlength="80" placeholder="e.g. Alex Morgan">
+                            <div class="error-display-name small text-danger mt-1"></div>
+                        </div>
 
-                        <label class="form-label" for="enjoy">What I enjoy</label>
-                        <input class="form-control mb-3" id="enjoy" required placeholder="e.g. Designing websites">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="enjoy">What I enjoy *</label>
+                            <input class="form-control" id="enjoy" placeholder="e.g. Solving puzzles and drawing">
+                            <div class="error-enjoy small text-danger mt-1"></div>
+                        </div>
 
-                        <label class="form-label" for="tried">What I've tried</label>
-                        <input class="form-control mb-3" id="tried" required placeholder="e.g. My first group project">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="tried">What I've tried *</label>
+                            <input class="form-control" id="tried" placeholder="e.g. Built my first page with HTML">
+                            <div class="error-tried small text-danger mt-1"></div>
+                        </div>
 
-                        <label class="form-label" for="curious">What I'm curious about</label>
-                        <input class="form-control mb-3" id="curious" required placeholder="e.g. Cloud computing">
-                        <p class="form-error small mb-2" id="profile-error" role="alert"></p>
-
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="curious">What I'm curious about *</label>
+                            <input class="form-control" id="curious" placeholder="e.g. How accessible websites work">
+                            <div class="error-curious small text-danger mt-1"></div>
+                        </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn btn-success flex-grow-1" type="submit">Submit</button>
+                            <button class="btn btn-success flex-grow-1 fw-bold py-2" type="submit">Submit</button>
                         </div>
                     </form>
-
                 </div>
-
             </section>
 
             <section>
                 <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
 
                 <div id="portfolio-container" class="Portfolio-Items">
-                    <form class="portfolio-form">
+                    <form class="portfolio-form card border p-4 shadow-sm rounded-4 mb-3" novalidate>
 
-                        <div>
-                            <label class="form-label" for="displayTitle">Title</label>
-                            <input class="form-control mb-3" id="displayTitle" name="title" type="text" required
-                                maxlength="1000" placeholder="e.g. My first group project">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" for="displayTitle">Title *</label>
+                                <input class="form-control" id="displayTitle" name="title" type="text"
+                                    placeholder="e.g. My first group project">
+                                <!-- เพิ่ม div สำหรับแสดง error ของ Title -->
+                                <div class="error-title small text-danger mt-1"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" for="displayType">Type *</label>
+                                <input class="form-control" id="displayType" name="type" type="text"
+                                    placeholder="e.g. Website, course, activity">
+                                <!-- เพิ่ม div สำหรับแสดง error ของ Type -->
+                                <div class="error-type small text-danger mt-1"></div>
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="form-label" for="displayType">Type</label>
-                            <input class="form-control mb-3" id="displayType" name="type" type="text" required
-                                maxlength="1000" placeholder="e.g. Website">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" for="displayDate">Date *</label>
+                                <input class="form-control" id="displayDate" name="date" type="date">
+                                <!-- เพิ่ม div สำหรับแสดง error ของ Date -->
+                                <div class="error-date small text-danger mt-1"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" for="displayRole">Your role *</label>
+                                <input class="form-control" id="displayRole" name="role" type="text"
+                                    placeholder="e.g. Team lead, curious beginner">
+                                <!-- เพิ่ม div สำหรับแสดง error ของ Role -->
+                                <div class="error-role small text-danger mt-1"></div>
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="form-label" for="displayDate">Date</label>
-                            <input class="form-control mb-3" id="displayDate" name="date" type="date" required>
-                        </div>
-
-                        <div>
-                            <label class="form-label" for="displayRole">Role Description</label>
-                            <input class="form-control mb-3" id="displayRole" name="role" type="text" required
-                                placeholder="e.g. Team Lead">
-                        </div>
-
-                        <div>
-                            <label class="form-label">Skills</label>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold mb-0">Skills *</label>
+                            <p class="text-muted small mb-2">Add one or more skills you used or practiced.</p>
 
                             <div class="skills-container">
                                 <div class="d-flex gap-2 mb-2 skill-item">
-                                    <input class="form-control" name="skills" type="text" required
-                                        placeholder="e.g. HTML">
-
-                                    <button type="button" class="btn btn-danger delete-field">
-                                        Delete
-                                    </button>
+                                    <input class="form-control" name="skills" type="text" placeholder="e.g. HTML">
+                                    <button type="button" class="btn btn-outline-danger delete-field">🗑️</button>
                                 </div>
                             </div>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm add-skill mb-3">
-                                + Add Skill
+                            <button type="button"
+                                class="btn btn-link text-success text-decoration-none p-0 mb-1 add-skill fw-bold">
+                                + Add a skill
                             </button>
+                            <!-- เพิ่ม div สำหรับแสดง error ของ Skills -->
+                            <div class="error-skills small text-danger mt-1"></div>
                         </div>
 
-                        <div>
-                            <label class="form-label" for="displayReflection">Reflection</label>
-                            <textarea class="form-control mb-3" id="displayReflection" name="reflection" required
-                                placeholder="e.g. I learned a lot about teamwork and communication."></textarea>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="displayReflection">Reflection *</label>
+                            <textarea class="form-control" id="displayReflection" name="reflection" rows="3"
+                                placeholder="What did you learn? What would you try differently next time?"></textarea>
+                            <!-- เพิ่ม div สำหรับแสดง error ของ Reflection -->
+                            <div class="error-reflection small text-danger mt-1"></div>
                         </div>
 
-                        <div>
-                            <label class="form-label">Evidence</label>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold mb-0">Evidence link *</label>
+                            <p class="text-muted small mb-2">Link to a project, a document, or anything that shows your
+                                experience.</p>
 
                             <div class="evidence-container">
                                 <div class="d-flex gap-2 mb-2 evidence-item">
-                                    <input class="form-control" name="evidence" type="url" required
-                                        placeholder="e.g. https://example.com/project">
-
-                                    <button type="button" class="btn btn-danger delete-evidence">
-                                        Delete
-                                    </button>
+                                    <input class="form-control" name="evidence" type="url"
+                                        placeholder="https://example.com/project">
+                                    <button type="button" class="btn btn-outline-danger delete-evidence">🗑️</button>
                                 </div>
                             </div>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm add-evidence mb-3">
-                                + Add Evidence
+                            <button type="button"
+                                class="btn btn-link text-success text-decoration-none p-0 mb-1 add-evidence fw-bold">
+                                + Add another link
                             </button>
+                            <!-- เพิ่ม div สำหรับแสดง error ของ Evidence -->
+                            <div class="error-evidence small text-danger mt-1"></div>
                         </div>
 
-                        <p class="form-error small mb-2" role="alert"></p>
-
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-success flex-grow-1" type="submit">
-                                Submit
+                        <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
+                            <button class="btn btn-success px-4 py-2 fw-bold" type="submit">
+                                Save experience ↗
                             </button>
-
-                            <button class="btn btn-danger delete-portfolio" type="button">
+                            <span class="form-status text-muted small">This experience has not been saved yet. Check the
+                                highlighted fields.</span>
+                            <button class="btn btn-outline-danger ms-auto delete-portfolio" type="button">
                                 Delete
                             </button>
                         </div>
@@ -136,7 +160,7 @@
                 </button>
 
                 <div id="portfolio-display" class="mt-4"></div>
-                
+
             </section>
 
             <section class="col-lg-6">
