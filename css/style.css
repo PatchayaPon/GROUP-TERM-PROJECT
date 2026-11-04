@@ -1,0 +1,2 @@
+img, video { max-width: 100%; height: auto; }
+.card, .form-panel, #portfolio-display { overflow-wrap: anywhere; }
