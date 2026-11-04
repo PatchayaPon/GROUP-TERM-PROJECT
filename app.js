@@ -217,7 +217,23 @@ function showPortfolioItems(items) {
         reflection.textContent = "Reflection: " + item.reflection;
 
         const evidence = document.createElement("div");
-        evidence.textContent = "Evidence: " + item.evidence.join(", ");
+        evidence.textContent = "Evidence: " 
+
+        item.evidence.forEach(function (url,index) {
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = url;
+
+            if (index > 0) {
+            evidence.appendChild(document.createTextNode(" , "));
+            }
+
+            evidence.appendChild(link);
+
+        });
 
         card.append(title, type, date, role, skills, reflection, evidence);
         portfolioDisplay.appendChild(card);
