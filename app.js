@@ -406,3 +406,23 @@ container.addEventListener("submit", function (event) {
 });
 
 showPortfolioItems(getSavedPortfolioItems());
+
+    document.documentElement.setAttribute(
+            'data-bs-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+    
+    const themeToggle = document.getElementById('theme-toggle');
+
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        themeToggle.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+        localStorage.setItem('theme', theme);
+    }
+
+    setTheme(localStorage.getItem('theme') || 'dark');
+
+    themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-bs-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+    });
