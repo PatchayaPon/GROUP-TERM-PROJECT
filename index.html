@@ -15,6 +15,22 @@
     <main class="container pb-5">
 
         <div class="row g-4">
+
+            <section class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
+                    <h2 class="h4 fw-bold" id="portfolio-name">Student</h2>
+                    <p><strong>What I enjoy:</strong> <span id="portfolio-enjoy"></span></p>
+                    <p><strong>What I've tried:</strong> <span id="portfolio-tried"></span></p>
+                    <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
+                </div>
+            </section>
+
+            <section class="col-12">
+                <h2 class="h4 fw-bold mb-3">Portfolio Items</h2>
+                <div id="portfolio-display" class="mt-4"></div>
+            </section>
+
             <section class="col-lg-6">
                 <div class="form-panel rounded-4 p-4 shadow-sm border">
                     <div class="d-flex align-items-center mb-1">
@@ -55,8 +71,8 @@
                 </div>
             </section>
 
-            <section>
-                <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
+            <section class="col-12">
+                <h2 class="h4 fw-bold mb-3">Create Portfolio Item</h2>
 
                 <div id="portfolio-container" class="Portfolio-Items">
                     <form class="portfolio-form card border p-4 shadow-sm rounded-4 mb-3" novalidate>
@@ -123,8 +139,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold mb-0">Evidence link *</label>
-                            <p class="text-muted small mb-2">Link to a project, a document, or anything that shows your
-                                experience.</p>
+                            <p class="text-muted small mb-2">Link to a project, a document, or anything that shows your experience.</p>
 
                             <div class="evidence-container">
                                 <div class="d-flex gap-2 mb-2 evidence-item">
@@ -145,8 +160,7 @@
                             <button class="btn btn-success px-4 py-2 fw-bold" type="submit">
                                 Save experience ↗
                             </button>
-                            <span class="form-status text-muted small">This experience has not been saved yet. Check the
-                                highlighted fields.</span>
+                            <span class="form-status text-muted small">This experience has not been saved yet. Check the highlighted fields.</span>
                             <button class="btn btn-outline-danger ms-auto delete-portfolio" type="button">
                                 Delete
                             </button>
@@ -164,20 +178,8 @@
                         ☀️ Light mode
                     </button>
                 </div>
-
-                <div id="portfolio-display" class="mt-4"></div>
-
             </section>
 
-            <section class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
-                    <h2 class="h4 fw-bold" id="portfolio-name"> Student</h2>
-                    <p><strong>What I enjoy:</strong> <span id="portfolio-enjoy"></span></p>
-                    <p><strong>What I've tried:</strong> <span id="portfolio-tried"></span></p>
-                    <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
-                </div>
-            </section>
         </div>
     </main>
 
