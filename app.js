@@ -1,9 +1,7 @@
-
 const form = document.querySelector('#profile-form');
 const STORAGE_KEY = 'portfolio';
 const container = document.getElementById("portfolio-container");
 const addButton = document.getElementById("add-portfolio");
-
 const PORTFOLIO_ITEMS_KEY = 'portfolioItems';
 const portfolioDisplay = document.getElementById("portfolio-display");
 
@@ -218,8 +216,17 @@ function showPortfolioItems(items) {
         const skills = document.createElement("p");
         skills.textContent = "Skills: " + (item.skills || []).join(", ");
 
-        const reflection = document.createElement("p");
-        reflection.textContent = "Reflection: " + item.reflection;
+        const did = document.createElement("p");
+        did.textContent = "What I did: " + item.did;
+
+        const learned = document.createElement("p");
+        learned.textContent = "What I learned: " + item.learned;
+
+        const challenge = document.createElement("p");
+        challenge.textContent = "Challenge: " + item.challenge;
+
+        const steps = document.createElement("p");
+        steps.textContent = "Next steps: " + item.steps;
 
         const evidence = document.createElement("div");
         evidence.textContent = "Evidence: ";
@@ -252,7 +259,10 @@ function showPortfolioItems(items) {
             role,
             roleDescription,
             skills,
-            reflection,
+            did,
+            learned,
+            challenge,
+            steps,
             evidence,
             deleteSavedButton
         );
@@ -361,14 +371,28 @@ function validatePortfolioForm(portfolioForm) {
         setError(null, skillsErr, "Add at least one skill.");
     }
 
-    const reflectionInput = portfolioForm.querySelector('[name="reflection"]');
+    const didInput = portfolioForm.querySelector('[name="did"]');
+    const learnedInput = portfolioForm.querySelector('[name="learned"]');
+    const challengeInput = portfolioForm.querySelector('[name="challenge"]');
+    const stepsInput = portfolioForm.querySelector('[name="steps"]');
     const reflectionErr = portfolioForm.querySelector('.error-reflection');
+    const reflectionInputs = [
+        didInput,
+        learnedInput,
+        challengeInput,
+        stepsInput
+    ];
 
-    clearError(reflectionInput, reflectionErr);
+    clearError(null, reflectionErr);
 
-    if (!reflectionInput.value.trim()) {
-        setError(reflectionInput, reflectionErr, "Share one thing you learned.");
-    }
+    reflectionInputs.forEach(function(input) {
+        input.classList.remove("is-invalid");
+
+        if (!input.value.trim()) {
+            input.classList.add("is-invalid");
+            setError(null, reflectionErr, "Please complete all reflection fields.");
+        }
+    });
 
     const evidenceInputs = portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]');
     const evidenceErr = portfolioForm.querySelector('.error-evidence');
@@ -442,7 +466,12 @@ container.addEventListener("submit", function (event) {
         role: portfolioForm.querySelector('[name="role"]').value.trim(),
         roleDescription: portfolioForm.querySelector('[name="roleDescription"]').value.trim(),
         skills: skills,
-        reflection: portfolioForm.querySelector('[name="reflection"]').value.trim(),
+        reflection: {
+            did : portfolioForm.querySelector('[name="did"]').value.trim(),
+            learned: portfolioForm.querySelector('[name="learned"]').value.trim(),
+            challenge: portfolioForm.querySelector('[name="challenge"]').value.trim(),
+            steps: portfolioForm.querySelector('[name="steps"]').value.trim(),
+        },
         evidence: evidence
     };
 
