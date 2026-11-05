@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
-        <title>Team Group project</title>
+    <title>Team Group project</title>
 </head>
 
 <body>
@@ -65,14 +65,12 @@
                                 <label class="form-label fw-bold" for="displayTitle">Title *</label>
                                 <input class="form-control" id="displayTitle" name="title" type="text"
                                     placeholder="e.g. My first group project">
-                                <!-- เพิ่ม div สำหรับแสดง error ของ Title -->
                                 <div class="error-title small text-danger mt-1"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold" for="displayType">Type *</label>
                                 <input class="form-control" id="displayType" name="type" type="text"
                                     placeholder="e.g. Website, course, activity">
-                                <!-- เพิ่ม div สำหรับแสดง error ของ Type -->
                                 <div class="error-type small text-danger mt-1"></div>
                             </div>
                         </div>
@@ -81,16 +79,20 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold" for="displayDate">Date *</label>
                                 <input class="form-control" id="displayDate" name="date" type="date">
-                                <!-- เพิ่ม div สำหรับแสดง error ของ Date -->
                                 <div class="error-date small text-danger mt-1"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold" for="displayRole">Your role *</label>
                                 <input class="form-control" id="displayRole" name="role" type="text"
                                     placeholder="e.g. Team lead, curious beginner">
-                                <!-- เพิ่ม div สำหรับแสดง error ของ Role -->
                                 <div class="error-role small text-danger mt-1"></div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="displayRoleDescription">Role Description</label>
+                            <textarea class="form-control" id="displayRoleDescription" name="roleDescription" rows="3"
+                                placeholder="Describe your role and responsibilities"></textarea>
                         </div>
 
                         <div class="mb-3">
@@ -108,7 +110,6 @@
                                 class="btn btn-link text-success text-decoration-none p-0 mb-1 add-skill fw-bold">
                                 + Add a skill
                             </button>
-                            <!-- เพิ่ม div สำหรับแสดง error ของ Skills -->
                             <div class="error-skills small text-danger mt-1"></div>
                         </div>
 
@@ -116,7 +117,6 @@
                             <label class="form-label fw-bold" for="displayReflection">Reflection *</label>
                             <textarea class="form-control" id="displayReflection" name="reflection" rows="3"
                                 placeholder="What did you learn? What would you try differently next time?"></textarea>
-                            <!-- เพิ่ม div สำหรับแสดง error ของ Reflection -->
                             <div class="error-reflection small text-danger mt-1"></div>
                         </div>
 
@@ -137,7 +137,6 @@
                                 class="btn btn-link text-success text-decoration-none p-0 mb-1 add-evidence fw-bold">
                                 + Add another link
                             </button>
-                            <!-- เพิ่ม div สำหรับแสดง error ของ Evidence -->
                             <div class="error-evidence small text-danger mt-1"></div>
                         </div>
 
@@ -161,7 +160,7 @@
 
                 <div class="d-flex justify-content-start py-3">
                     <button id="theme-toggle" type="button" class="btn btn-primary mt-3">
-                       ☀️ Light mode
+                        ☀️ Light mode
                     </button>
                 </div>
 
@@ -178,7 +177,6 @@
                     <p><strong>What I've tried:</strong> <span id="portfolio-tried"></span></p>
                     <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
                 </div>
-
 
             </section>
         </div>

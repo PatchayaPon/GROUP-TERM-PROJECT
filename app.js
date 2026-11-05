@@ -1,3 +1,4 @@
+
 const form = document.querySelector('#profile-form');
 const STORAGE_KEY = 'portfolio';
 const container = document.getElementById("portfolio-container");
@@ -6,7 +7,6 @@ const addButton = document.getElementById("add-portfolio");
 const PORTFOLIO_ITEMS_KEY = 'portfolioItems';
 const portfolioDisplay = document.getElementById("portfolio-display");
 
-// ฟังก์ชันอัปเดตข้อมูลแสดงผลบนการ์ด Portfolio ด้านขวา
 function showPortfolio(portfolio) {
     document.querySelector('#portfolio-name').textContent = portfolio.displayName || 'Student';
     document.querySelector('#portfolio-enjoy').textContent = portfolio.whatIEnjoy || '';
@@ -14,7 +14,6 @@ function showPortfolio(portfolio) {
     document.querySelector('#portfolio-curious').textContent = portfolio.whatImCuriousAbout || '';
 }
 
-// ฟังก์ชันตรวจสอบความถูกต้องของฟอร์ม Portfolio หลัก
 function validateProfileForm(formEl) {
     let isValid = true;
 
@@ -60,12 +59,10 @@ function validateProfileForm(formEl) {
     return isValid;
 }
 
-// Event Submit ของฟอร์ม Portfolio หลัก
 if (form) {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        // ตรวจสอบความถูกต้องก่อนบันทึก
         if (!validateProfileForm(form)) {
             return;
         }
@@ -77,22 +74,18 @@ if (form) {
             whatImCuriousAbout: document.querySelector('#curious').value.trim()
         };
 
-        // แสดงผลบนการ์ด
         showPortfolio(portfolio);
 
-        // บันทึกลง localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio));
     });
 }
 
-// โหลดข้อมูล Portfolio หลักที่บันทึกไว้ตอนเปิด/รีเฟรชหน้าเว็บ
 const savedData = localStorage.getItem(STORAGE_KEY);
 if (savedData !== null) {
     try {
         const savedPortfolio = JSON.parse(savedData);
         showPortfolio(savedPortfolio);
-        
-        // เติมข้อมูลกลับลงในช่อง Input ของฟอร์มด้วย
+
         if (document.querySelector('#displayName')) document.querySelector('#displayName').value = savedPortfolio.displayName || '';
         if (document.querySelector('#enjoy')) document.querySelector('#enjoy').value = savedPortfolio.whatIEnjoy || '';
         if (document.querySelector('#tried')) document.querySelector('#tried').value = savedPortfolio.whatIveTried || '';
@@ -101,10 +94,6 @@ if (savedData !== null) {
         console.error('Could not restore the saved Portfolio:', error);
     }
 }
-
-// ==========================================
-// ส่วนจัดการ Portfolio Items (ผลงาน/กิจกรรม)
-// ==========================================
 
 if (addButton) {
     addButton.addEventListener("click", function () {
@@ -210,6 +199,9 @@ function showPortfolioItems(items) {
         const role = document.createElement("p");
         role.textContent = "Role: " + item.role;
 
+        const roleDescription = document.createElement("p");
+        roleDescription.textContent = "Role Description: " + (item.roleDescription || "");
+
         const skills = document.createElement("p");
         skills.textContent = "Skills: " + item.skills.join(", ");
 
@@ -217,9 +209,9 @@ function showPortfolioItems(items) {
         reflection.textContent = "Reflection: " + item.reflection;
 
         const evidence = document.createElement("div");
-        evidence.textContent = "Evidence: " 
+        evidence.textContent = "Evidence: ";
 
-        item.evidence.forEach(function (url,index) {
+        item.evidence.forEach(function (url, index) {
             const link = document.createElement("a");
 
             link.href = url;
@@ -228,14 +220,13 @@ function showPortfolioItems(items) {
             link.textContent = url;
 
             if (index > 0) {
-            evidence.appendChild(document.createTextNode(" , "));
+                evidence.appendChild(document.createTextNode(" , "));
             }
 
             evidence.appendChild(link);
-
         });
 
-        card.append(title, type, date, role, skills, reflection, evidence);
+        card.append(title, type, date, role, roleDescription, skills, reflection, evidence);
         portfolioDisplay.appendChild(card);
     });
 }
@@ -252,7 +243,6 @@ function getSavedPortfolioItems() {
     return [];
 }
 
-// ฟังก์ชัน Validate ฟอร์ม Portfolio Item ย่อย
 function validatePortfolioForm(portfolioForm) {
     let isValid = true;
 
@@ -308,6 +298,7 @@ function validatePortfolioForm(portfolioForm) {
             input.classList.add("is-invalid");
         }
     }
+
     if (!hasValidSkill) {
         setError(null, skillsErr, "Add at least one skill.");
     }
@@ -383,6 +374,7 @@ container.addEventListener("submit", function (event) {
         type: portfolioForm.querySelector('[name="type"]').value.trim(),
         date: portfolioForm.querySelector('[name="date"]').value,
         role: portfolioForm.querySelector('[name="role"]').value.trim(),
+        roleDescription: portfolioForm.querySelector('[name="roleDescription"]')?.value.trim() || "",
         skills: skills,
         reflection: portfolioForm.querySelector('[name="reflection"]').value.trim(),
         evidence: evidence
@@ -397,7 +389,7 @@ container.addEventListener("submit", function (event) {
     portfolioForm.reset();
     portfolioForm.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
     portfolioForm.querySelectorAll(".small.text-danger").forEach(el => el.textContent = "");
-    
+
     const statusText = portfolioForm.querySelector('.form-status');
     if (statusText) {
         statusText.textContent = "Experience saved successfully!";
@@ -407,22 +399,22 @@ container.addEventListener("submit", function (event) {
 
 showPortfolioItems(getSavedPortfolioItems());
 
-    document.documentElement.setAttribute(
-            'data-bs-theme',
-            localStorage.getItem('theme') || 'dark'
-        );
-    
-    const themeToggle = document.getElementById('theme-toggle');
+document.documentElement.setAttribute(
+    'data-bs-theme',
+    localStorage.getItem('theme') || 'dark'
+);
 
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-bs-theme', theme);
-        themeToggle.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
-        localStorage.setItem('theme', theme);
-    }
+const themeToggle = document.getElementById('theme-toggle');
 
-    setTheme(localStorage.getItem('theme') || 'dark');
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    themeToggle.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+    localStorage.setItem('theme', theme);
+}
 
-    themeToggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-bs-theme');
-        setTheme(current === 'dark' ? 'light' : 'dark');
-    });
+setTheme(localStorage.getItem('theme') || 'dark');
+
+themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-bs-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
+});
