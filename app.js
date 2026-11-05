@@ -217,16 +217,16 @@ function showPortfolioItems(items) {
         skills.textContent = "Skills: " + (item.skills || []).join(", ");
 
         const did = document.createElement("p");
-        did.textContent = "What I did: " + item.did;
+        did.textContent = "What I did: " + item.reflection.did;
 
         const learned = document.createElement("p");
-        learned.textContent = "What I learned: " + item.learned;
+        learned.textContent = "What I learned: " + item.reflection.learned;
 
         const challenge = document.createElement("p");
-        challenge.textContent = "Challenge: " + item.challenge;
+        challenge.textContent = "Challenge: " + item.reflection.challenge;
 
         const steps = document.createElement("p");
-        steps.textContent = "Next steps: " + item.steps;
+        steps.textContent = "Next steps: " + item.reflection.steps;
 
         const evidence = document.createElement("div");
         evidence.textContent = "Evidence: ";
