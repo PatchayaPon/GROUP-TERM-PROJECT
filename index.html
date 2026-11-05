@@ -16,6 +16,11 @@
         <div class="row g-4">
 
             <section class="col-12">
+                <h2 class="h4 fw-bold mb-3">My Portfolios</h2>
+                <div id="portfolio-list" class="row g-3"></div>
+            </section>
+
+            <section class="col-12">
                 <div class="card border-0 shadow-sm rounded-4 p-4">
                     <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
                     <h2 class="h4 fw-bold" id="portfolio-name">Student</h2>
@@ -26,7 +31,7 @@
             </section>
 
             <section class="col-12">
-                <h2 class="h4 fw-bold mb-3">Portfolio Items</h2>
+                <h2 class="h4 fw-bold mb-3" id="items-heading">Portfolio Items</h2>
                 <div id="portfolio-display" class="mt-4"></div>
             </section>
 
@@ -34,7 +39,7 @@
                 <div class="form-panel rounded-4 p-4 shadow-sm border">
                     <div class="d-flex align-items-center mb-1">
                         <span class="badge bg-light text-success border px-2 py-1 me-2 rounded-2 fw-bold">01</span>
-                        <h2 class="h4 fw-bold mb-0">Create your portfolio</h2>
+                        <h2 class="h4 fw-bold mb-0" id="profile-form-title">Create your portfolio</h2>
                     </div>
                     <p class="text-muted small mb-3">A few words about you. You can change them anytime.</p>
 
@@ -64,14 +69,16 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn btn-success flex-grow-1 fw-bold py-2" type="submit">Submit</button>
+                            <button class="btn btn-success flex-grow-1 fw-bold py-2" id="profile-submit" type="submit">Create portfolio</button>
+                            <button class="btn btn-outline-secondary py-2 d-none" id="profile-cancel" type="button">Cancel</button>
                         </div>
                     </form>
                 </div>
             </section>
 
             <section class="col-12">
-                <h2 class="h4 fw-bold mb-3">Create Portfolio Item</h2>
+                <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
+                <p id="active-note" class="text-muted small mb-3"></p>
 
                 <div id="portfolio-container" class="Portfolio-Items">
                     <form class="portfolio-form card border p-4 shadow-sm rounded-4 mb-3" novalidate>
