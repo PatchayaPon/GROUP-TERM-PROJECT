@@ -75,21 +75,21 @@ if (form) {
         };
 
         showPortfolio(portfolio);
-
         localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio));
     });
 }
 
 const savedData = localStorage.getItem(STORAGE_KEY);
+
 if (savedData !== null) {
     try {
         const savedPortfolio = JSON.parse(savedData);
         showPortfolio(savedPortfolio);
 
-        if (document.querySelector('#displayName')) document.querySelector('#displayName').value = savedPortfolio.displayName || '';
-        if (document.querySelector('#enjoy')) document.querySelector('#enjoy').value = savedPortfolio.whatIEnjoy || '';
-        if (document.querySelector('#tried')) document.querySelector('#tried').value = savedPortfolio.whatIveTried || '';
-        if (document.querySelector('#curious')) document.querySelector('#curious').value = savedPortfolio.whatImCuriousAbout || '';
+        document.querySelector('#displayName').value = savedPortfolio.displayName || '';
+        document.querySelector('#enjoy').value = savedPortfolio.whatIEnjoy || '';
+        document.querySelector('#tried').value = savedPortfolio.whatIveTried || '';
+        document.querySelector('#curious').value = savedPortfolio.whatImCuriousAbout || '';
     } catch (error) {
         console.error('Could not restore the saved Portfolio:', error);
     }
@@ -112,6 +112,7 @@ if (addButton) {
         });
 
         const statusText = newForm.querySelector('.form-status');
+
         if (statusText) {
             statusText.textContent = "This experience has not been saved yet. Check the highlighted fields.";
             statusText.className = "form-status text-muted small";
@@ -123,20 +124,25 @@ if (addButton) {
 
 container.addEventListener("click", function (event) {
     const addSkillButton = event.target.closest(".add-skill");
+
     if (addSkillButton) {
         const portfolioForm = addSkillButton.closest(".portfolio-form");
         const skillsContainer = portfolioForm.querySelector(".skills-container");
         const firstSkill = skillsContainer.querySelector(".skill-item");
         const newSkill = firstSkill.cloneNode(true);
+
         newSkill.querySelector("input").value = "";
         newSkill.querySelector("input").classList.remove("is-invalid");
+
         skillsContainer.appendChild(newSkill);
     }
 
     const deleteFieldButton = event.target.closest(".delete-field");
+
     if (deleteFieldButton) {
         const skillItem = deleteFieldButton.closest(".skill-item");
         const skillsContainer = skillItem.closest(".skills-container");
+
         if (skillsContainer.querySelectorAll(".skill-item").length > 1) {
             skillItem.remove();
         } else {
@@ -145,20 +151,25 @@ container.addEventListener("click", function (event) {
     }
 
     const addEvidenceButton = event.target.closest(".add-evidence");
+
     if (addEvidenceButton) {
         const portfolioForm = addEvidenceButton.closest(".portfolio-form");
         const evidenceContainer = portfolioForm.querySelector(".evidence-container");
         const firstEvidence = evidenceContainer.querySelector(".evidence-item");
         const newEvidence = firstEvidence.cloneNode(true);
+
         newEvidence.querySelector("input").value = "";
         newEvidence.querySelector("input").classList.remove("is-invalid");
+
         evidenceContainer.appendChild(newEvidence);
     }
 
     const deleteEvidenceButton = event.target.closest(".delete-evidence");
+
     if (deleteEvidenceButton) {
         const evidenceItem = deleteEvidenceButton.closest(".evidence-item");
         const evidenceContainer = evidenceItem.closest(".evidence-container");
+
         if (evidenceContainer.querySelectorAll(".evidence-item").length > 1) {
             evidenceItem.remove();
         } else {
@@ -167,8 +178,10 @@ container.addEventListener("click", function (event) {
     }
 
     const deleteButton = event.target.closest(".delete-portfolio");
+
     if (deleteButton) {
         const portfolioForm = deleteButton.closest(".portfolio-form");
+
         if (portfolioForm && container.querySelectorAll(".portfolio-form").length > 1) {
             portfolioForm.remove();
         } else if (portfolioForm) {
@@ -182,7 +195,7 @@ container.addEventListener("click", function (event) {
 function showPortfolioItems(items) {
     portfolioDisplay.innerHTML = "";
 
-    items.forEach(function (item) {
+    items.forEach(function (item, index) {
         const card = document.createElement("div");
         card.className = "card border-0 shadow-sm rounded-4 p-4 mb-3";
 
@@ -203,7 +216,7 @@ function showPortfolioItems(items) {
         roleDescription.textContent = "Role Description: " + (item.roleDescription || "");
 
         const skills = document.createElement("p");
-        skills.textContent = "Skills: " + item.skills.join(", ");
+        skills.textContent = "Skills: " + (item.skills || []).join(", ");
 
         const reflection = document.createElement("p");
         reflection.textContent = "Reflection: " + item.reflection;
@@ -211,7 +224,7 @@ function showPortfolioItems(items) {
         const evidence = document.createElement("div");
         evidence.textContent = "Evidence: ";
 
-        item.evidence.forEach(function (url, index) {
+        (item.evidence || []).forEach(function (url, linkIndex) {
             const link = document.createElement("a");
 
             link.href = url;
@@ -219,20 +232,38 @@ function showPortfolioItems(items) {
             link.rel = "noopener noreferrer";
             link.textContent = url;
 
-            if (index > 0) {
+            if (linkIndex > 0) {
                 evidence.appendChild(document.createTextNode(" , "));
             }
 
             evidence.appendChild(link);
         });
 
-        card.append(title, type, date, role, roleDescription, skills, reflection, evidence);
+        const deleteSavedButton = document.createElement("button");
+        deleteSavedButton.type = "button";
+        deleteSavedButton.className = "btn btn-outline-danger mt-3 delete-saved-portfolio";
+        deleteSavedButton.textContent = "Delete Portfolio Item";
+        deleteSavedButton.dataset.index = index;
+
+        card.append(
+            title,
+            type,
+            date,
+            role,
+            roleDescription,
+            skills,
+            reflection,
+            evidence,
+            deleteSavedButton
+        );
+
         portfolioDisplay.appendChild(card);
     });
 }
 
 function getSavedPortfolioItems() {
     const savedItems = localStorage.getItem(PORTFOLIO_ITEMS_KEY);
+
     if (savedItems !== null) {
         try {
             return JSON.parse(savedItems);
@@ -240,8 +271,28 @@ function getSavedPortfolioItems() {
             console.error("Could not restore Portfolio Items:", error);
         }
     }
+
     return [];
 }
+
+portfolioDisplay.addEventListener("click", function (event) {
+    const deleteButton = event.target.closest(".delete-saved-portfolio");
+
+    if (!deleteButton) return;
+
+    const index = Number(deleteButton.dataset.index);
+    const portfolioItems = getSavedPortfolioItems();
+
+    if (!Number.isInteger(index) || index < 0 || index >= portfolioItems.length) {
+        return;
+    }
+
+    portfolioItems.splice(index, 1);
+
+    localStorage.setItem(PORTFOLIO_ITEMS_KEY, JSON.stringify(portfolioItems));
+
+    showPortfolioItems(portfolioItems);
+});
 
 function validatePortfolioForm(portfolioForm) {
     let isValid = true;
@@ -260,6 +311,7 @@ function validatePortfolioForm(portfolioForm) {
     const titleInput = portfolioForm.querySelector('[name="title"]');
     const titleErr = portfolioForm.querySelector('.error-title');
     clearError(titleInput, titleErr);
+
     if (!titleInput.value.trim()) {
         setError(titleInput, titleErr, "Add a title for this experience.");
     }
@@ -267,6 +319,7 @@ function validatePortfolioForm(portfolioForm) {
     const typeInput = portfolioForm.querySelector('[name="type"]');
     const typeErr = portfolioForm.querySelector('.error-type');
     clearError(typeInput, typeErr);
+
     if (!typeInput.value.trim()) {
         setError(typeInput, typeErr, "Add a type, such as project, course, or activity.");
     }
@@ -274,6 +327,7 @@ function validatePortfolioForm(portfolioForm) {
     const dateInput = portfolioForm.querySelector('[name="date"]');
     const dateErr = portfolioForm.querySelector('.error-date');
     clearError(dateInput, dateErr);
+
     if (!dateInput.value || isNaN(Date.parse(dateInput.value))) {
         setError(dateInput, dateErr, "Choose the date you completed or started this experience.");
     }
@@ -281,14 +335,18 @@ function validatePortfolioForm(portfolioForm) {
     const roleInput = portfolioForm.querySelector('[name="role"]');
     const roleErr = portfolioForm.querySelector('.error-role');
     clearError(roleInput, roleErr);
+
     if (!roleInput.value.trim()) {
         setError(roleInput, roleErr, "Describe what you did or contributed.");
     }
 
     const skillInputs = portfolioForm.querySelectorAll('.skills-container input[name="skills"]');
     const skillsErr = portfolioForm.querySelector('.error-skills');
+
     clearError(null, skillsErr);
+
     let hasValidSkill = false;
+
     skillInputs.forEach(input => input.classList.remove("is-invalid"));
 
     for (let input of skillInputs) {
@@ -305,20 +363,26 @@ function validatePortfolioForm(portfolioForm) {
 
     const reflectionInput = portfolioForm.querySelector('[name="reflection"]');
     const reflectionErr = portfolioForm.querySelector('.error-reflection');
+
     clearError(reflectionInput, reflectionErr);
+
     if (!reflectionInput.value.trim()) {
         setError(reflectionInput, reflectionErr, "Share one thing you learned.");
     }
 
     const evidenceInputs = portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]');
     const evidenceErr = portfolioForm.querySelector('.error-evidence');
+
     clearError(null, evidenceErr);
+
     let hasValidEvidence = false;
     let hasUrlError = false;
+
     evidenceInputs.forEach(input => input.classList.remove("is-invalid"));
 
     for (let input of evidenceInputs) {
         const val = input.value.trim();
+
         if (val !== '') {
             try {
                 new URL(val);
@@ -339,6 +403,7 @@ function validatePortfolioForm(portfolioForm) {
     }
 
     const statusText = portfolioForm.querySelector('.form-status');
+
     if (statusText) {
         if (!isValid) {
             statusText.textContent = "This experience has not been saved yet. Check the highlighted fields.";
@@ -353,6 +418,7 @@ function validatePortfolioForm(portfolioForm) {
 
 container.addEventListener("submit", function (event) {
     const portfolioForm = event.target.closest(".portfolio-form");
+
     if (!portfolioForm) return;
 
     event.preventDefault();
@@ -374,23 +440,27 @@ container.addEventListener("submit", function (event) {
         type: portfolioForm.querySelector('[name="type"]').value.trim(),
         date: portfolioForm.querySelector('[name="date"]').value,
         role: portfolioForm.querySelector('[name="role"]').value.trim(),
-        roleDescription: portfolioForm.querySelector('[name="roleDescription"]')?.value.trim() || "",
+        roleDescription: portfolioForm.querySelector('[name="roleDescription"]').value.trim(),
         skills: skills,
         reflection: portfolioForm.querySelector('[name="reflection"]').value.trim(),
         evidence: evidence
     };
 
     const portfolioItems = getSavedPortfolioItems();
+
     portfolioItems.push(portfolioItem);
 
     localStorage.setItem(PORTFOLIO_ITEMS_KEY, JSON.stringify(portfolioItems));
+
     showPortfolioItems(portfolioItems);
 
     portfolioForm.reset();
+
     portfolioForm.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
     portfolioForm.querySelectorAll(".small.text-danger").forEach(el => el.textContent = "");
 
     const statusText = portfolioForm.querySelector('.form-status');
+
     if (statusText) {
         statusText.textContent = "Experience saved successfully!";
         statusText.className = "form-status text-success small fw-bold";
