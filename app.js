@@ -5,6 +5,35 @@ const addButton = document.getElementById("add-portfolio");
 const PORTFOLIO_ITEMS_KEY = 'portfolioItems';
 const portfolioDisplay = document.getElementById("portfolio-display");
 
+function generateId() {
+    if (window.crypto && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
+    return "item-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+function normalizePortfolioItem(raw) {
+    const item = raw || {};
+    const reflection = item.reflection || {};
+
+    return {
+        id: String(item.id || generateId()),
+        title: String(item.title || ""),
+        type: String(item.type || ""),
+        date: String(item.date || ""),
+        role: String(item.role || ""),
+        description: String(item.description ?? item.roleDescription ?? ""),
+        skills: Array.isArray(item.skills) ? item.skills.map(String) : [],
+        reflection: {
+            did: String(reflection.did || ""),
+            learned: String(reflection.learned || ""),
+            challenge: String(reflection.challenge || ""),
+            steps: String(reflection.steps || "")
+        },
+        evidence: Array.isArray(item.evidence) ? item.evidence.map(String) : []
+    };
+}
+
 function showPortfolio(portfolio) {
     document.querySelector('#portfolio-name').textContent = portfolio.displayName || 'Student';
     document.querySelector('#portfolio-enjoy').textContent = portfolio.whatIEnjoy || '';
@@ -211,7 +240,7 @@ function showPortfolioItems(items) {
         role.textContent = "Role: " + item.role;
 
         const roleDescription = document.createElement("p");
-        roleDescription.textContent = "Role Description: " + (item.roleDescription || "");
+        roleDescription.textContent = "Role Description: " + item.description;
 
         const skills = document.createElement("p");
         skills.textContent = "Skills: " + (item.skills || []).join(", ");
@@ -250,7 +279,7 @@ function showPortfolioItems(items) {
         deleteSavedButton.type = "button";
         deleteSavedButton.className = "btn btn-outline-danger mt-3 delete-saved-portfolio";
         deleteSavedButton.textContent = "Delete Portfolio Item";
-        deleteSavedButton.dataset.index = index;
+        deleteSavedButton.dataset.id = item.id;
 
         card.append(
             title,
@@ -276,7 +305,13 @@ function getSavedPortfolioItems() {
 
     if (savedItems !== null) {
         try {
-            return JSON.parse(savedItems);
+            const parsed = JSON.parse(savedItems);
+
+            if (Array.isArray(parsed)) {
+                const normalized = parsed.map(normalizePortfolioItem);
+                localStorage.setItem(PORTFOLIO_ITEMS_KEY, JSON.stringify(normalized));
+                return normalized;
+            }
         } catch (error) {
             console.error("Could not restore Portfolio Items:", error);
         }
@@ -290,14 +325,11 @@ portfolioDisplay.addEventListener("click", function (event) {
 
     if (!deleteButton) return;
 
-    const index = Number(deleteButton.dataset.index);
-    const portfolioItems = getSavedPortfolioItems();
+    const id = deleteButton.dataset.id;
 
-    if (!Number.isInteger(index) || index < 0 || index >= portfolioItems.length) {
-        return;
-    }
-
-    portfolioItems.splice(index, 1);
+    const portfolioItems = getSavedPortfolioItems().filter(function (item) {
+        return item.id !== id;
+    });
 
     localStorage.setItem(PORTFOLIO_ITEMS_KEY, JSON.stringify(portfolioItems));
 
@@ -453,27 +485,28 @@ container.addEventListener("submit", function (event) {
 
     const skills = Array.from(
         portfolioForm.querySelectorAll('.skills-container input[name="skills"]')
-    ).map(input => input.value.trim());
+    ).map(input => input.value.trim()).filter(Boolean);
 
     const evidence = Array.from(
         portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]')
-    ).map(input => input.value.trim());
+    ).map(input => input.value.trim()).filter(Boolean);
 
-    const portfolioItem = {
+    const portfolioItem = normalizePortfolioItem({
+        id: generateId(),
         title: portfolioForm.querySelector('[name="title"]').value.trim(),
         type: portfolioForm.querySelector('[name="type"]').value.trim(),
         date: portfolioForm.querySelector('[name="date"]').value,
         role: portfolioForm.querySelector('[name="role"]').value.trim(),
-        roleDescription: portfolioForm.querySelector('[name="roleDescription"]').value.trim(),
+        description: portfolioForm.querySelector('[name="roleDescription"]').value.trim(),
         skills: skills,
         reflection: {
-            did : portfolioForm.querySelector('[name="did"]').value.trim(),
+            did: portfolioForm.querySelector('[name="did"]').value.trim(),
             learned: portfolioForm.querySelector('[name="learned"]').value.trim(),
             challenge: portfolioForm.querySelector('[name="challenge"]').value.trim(),
-            steps: portfolioForm.querySelector('[name="steps"]').value.trim(),
+            steps: portfolioForm.querySelector('[name="steps"]').value.trim()
         },
         evidence: evidence
-    };
+    });
 
     const portfolioItems = getSavedPortfolioItems();
 
