@@ -4,3 +4,10 @@ img, video { max-width: 100%; height: auto; }
 body {
     padding-top: 50px;
 }
+
+@media (min-width: 992px) {
+  #portfolio-list > [class*="col-"] {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+}

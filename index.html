@@ -15,68 +15,72 @@
 
         <div class="row g-4">
 
-            <section class="col-12">
-                <h2 class="h4 fw-bold mb-3">My Portfolios</h2>
-                <div id="portfolio-list" class="row g-3"></div>
-            </section>
+            <div class="md:col-6 d-flex flex-column gap-4">
 
-            <section class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
-                    <h2 class="h4 fw-bold" id="portfolio-name">Student</h2>
-                    <p><strong>What I enjoy:</strong> <span id="portfolio-enjoy"></span></p>
-                    <p><strong>What I've tried:</strong> <span id="portfolio-tried"></span></p>
-                    <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
-                </div>
-            </section>
+                <section>
+                    <h2 class="h4 fw-bold mb-3">My Portfolios</h2>
+                    <div id="portfolio-list" class="row g-3"></div>
+                </section>
 
-            <section class="col-12">
-                <h2 class="h4 fw-bold mb-3" id="items-heading">Portfolio Items</h2>
-                <div id="portfolio-display" class="mt-4"></div>
-            </section>
-
-            <section class="col-lg-6">
-                <div class="form-panel rounded-4 p-4 shadow-sm border">
-                    <div class="d-flex align-items-center mb-1">
-                        <span class="badge bg-light text-success border px-2 py-1 me-2 rounded-2 fw-bold">01</span>
-                        <h2 class="h4 fw-bold mb-0" id="profile-form-title">Create your portfolio</h2>
+                <section>
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <span class="badge text-bg-light align-self-start mb-3">Portfolio</span>
+                        <h2 class="h4 fw-bold" id="portfolio-name">Student</h2>
+                        <p><strong>What I enjoy:</strong> <span id="portfolio-enjoy"></span></p>
+                        <p><strong>What I've tried:</strong> <span id="portfolio-tried"></span></p>
+                        <p><strong>What I'm curious about:</strong> <span id="portfolio-curious"></span></p>
                     </div>
-                    <p class="text-muted small mb-3">A few words about you. You can change them anytime.</p>
+                </section>
 
-                    <form id="profile-form" novalidate>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" for="displayName">Name *</label>
-                            <input class="form-control" id="displayName" maxlength="80" placeholder="e.g. Alex Morgan">
-                            <div class="error-display-name small text-danger mt-1"></div>
+                <section>
+                    <h2 class="h4 fw-bold mb-3" id="items-heading">Portfolio Items</h2>
+                    <div id="portfolio-display" class="mt-4"></div>
+                </section>
+
+                <section>
+                    <div class="form-panel rounded-4 p-4 shadow-sm border">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-light text-success border px-2 py-1 me-2 rounded-2 fw-bold">01</span>
+                            <h2 class="h4 fw-bold mb-0" id="profile-form-title">Create your portfolio</h2>
                         </div>
+                        <p class="text-muted small mb-3">A few words about you. You can change them anytime.</p>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" for="enjoy">What I enjoy *</label>
-                            <input class="form-control" id="enjoy" placeholder="e.g. Solving puzzles and drawing">
-                            <div class="error-enjoy small text-danger mt-1"></div>
-                        </div>
+                        <form id="profile-form" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="displayName">Name *</label>
+                                <input class="form-control" id="displayName" maxlength="80" placeholder="e.g. Alex Morgan">
+                                <div class="error-display-name small text-danger mt-1"></div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" for="tried">What I've tried *</label>
-                            <input class="form-control" id="tried" placeholder="e.g. Built my first page with HTML">
-                            <div class="error-tried small text-danger mt-1"></div>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="enjoy">What I enjoy *</label>
+                                <input class="form-control" id="enjoy" placeholder="e.g. Solving puzzles and drawing">
+                                <div class="error-enjoy small text-danger mt-1"></div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" for="curious">What I'm curious about *</label>
-                            <input class="form-control" id="curious" placeholder="e.g. How accessible websites work">
-                            <div class="error-curious small text-danger mt-1"></div>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="tried">What I've tried *</label>
+                                <input class="form-control" id="tried" placeholder="e.g. Built my first page with HTML">
+                                <div class="error-tried small text-danger mt-1"></div>
+                            </div>
 
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-success flex-grow-1 fw-bold py-2" id="profile-submit" type="submit">Create portfolio</button>
-                            <button class="btn btn-outline-secondary py-2 d-none" id="profile-cancel" type="button">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="curious">What I'm curious about *</label>
+                                <input class="form-control" id="curious" placeholder="e.g. How accessible websites work">
+                                <div class="error-curious small text-danger mt-1"></div>
+                            </div>
 
-            <section class="col-12">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success flex-grow-1 fw-bold py-2" id="profile-submit" type="submit">Create portfolio</button>
+                                <button class="btn btn-outline-secondary py-2 d-none" id="profile-cancel" type="button">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
+
+            <section class="md:col-6">
                 <h2 class="h4 fw-bold mb-1">Create Portfolio Item</h2>
                 <p id="active-note" class="text-muted small mb-3"></p>
 
