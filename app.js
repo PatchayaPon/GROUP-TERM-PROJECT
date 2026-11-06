@@ -510,6 +510,26 @@ portfolioDisplay.addEventListener('click', function (event) {
     renderAll();
 });
 
+function isValidHttpUrl(value) {
+    if (/\s/.test(value)) return false;
+
+    let url;
+    try {
+        url = new URL(value);
+    } catch (_) {
+        return false;
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+
+    const host = url.hostname;
+    return (
+        host === 'localhost' ||
+        /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+        /^([a-z0-9-]+\.)+[a-z][a-z0-9-]+$/i.test(host)
+    );
+}
+
 function validatePortfolioForm(portfolioForm) {
     let isValid = true;
 
@@ -552,23 +572,44 @@ function validatePortfolioForm(portfolioForm) {
         setError(roleInput, roleErr, 'Describe what you did or contributed.');
     }
 
-    const skillInputs = portfolioForm.querySelectorAll('.skills-container input[name="skills"]');
+    const skillInputs = Array.from(portfolioForm.querySelectorAll('.skills-container input[name="skills"]'));
     const skillsErr = portfolioForm.querySelector('.error-skills');
     clearError(null, skillsErr);
-
-    let hasValidSkill = false;
     skillInputs.forEach(function (input) { input.classList.remove('is-invalid'); });
 
-    for (let input of skillInputs) {
-        if (input.value.trim() !== '') {
-            hasValidSkill = true;
-        } else {
-            input.classList.add('is-invalid');
+    const skillMessages = [];
+    const seenSkills = new Set();
+    let filledSkills = 0;
+
+    skillInputs.forEach(function (input, index) {
+        const value = input.value.trim();
+        if (value === '') return;
+
+        filledSkills++;
+
+        let problem = '';
+        if (value.length > 40) {
+            problem = 'is too long (max 40 characters).';
+        } else if (!/\p{L}/u.test(value)) {
+            problem = 'must contain at least one letter, e.g. HTML or Teamwork.';
+        } else if (seenSkills.has(value.toLowerCase())) {
+            problem = 'is a duplicate. Remove it or enter a different skill.';
         }
+        seenSkills.add(value.toLowerCase());
+
+        if (problem) {
+            input.classList.add('is-invalid');
+            skillMessages.push('Skill ' + (index + 1) + ' ' + problem);
+        }
+    });
+
+    if (filledSkills === 0) {
+        if (skillInputs[0]) skillInputs[0].classList.add('is-invalid');
+        skillMessages.push('Add at least one skill, e.g. HTML or Teamwork.');
     }
 
-    if (!hasValidSkill) {
-        setError(null, skillsErr, 'Add at least one skill.');
+    if (skillMessages.length > 0) {
+        setError(null, skillsErr, skillMessages.join('<br>⚠️ '));
     }
 
     const reflectionErr = portfolioForm.querySelector('.error-reflection');
@@ -587,35 +628,44 @@ function validatePortfolioForm(portfolioForm) {
         }
     });
 
-    const evidenceInputs = portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]');
+    const evidenceInputs = Array.from(portfolioForm.querySelectorAll('.evidence-container input[name="evidence"]'));
     const evidenceErr = portfolioForm.querySelector('.error-evidence');
     clearError(null, evidenceErr);
-
-    let hasValidEvidence = false;
-    let hasUrlError = false;
-
     evidenceInputs.forEach(function (input) { input.classList.remove('is-invalid'); });
 
-    for (let input of evidenceInputs) {
-        const val = input.value.trim();
+    const evidenceMessages = [];
+    const seenLinks = new Set();
+    let filledLinks = 0;
 
-        if (val !== '') {
-            try {
-                new URL(val);
-                hasValidEvidence = true;
-            } catch (_) {
-                input.classList.add('is-invalid');
-                hasUrlError = true;
-            }
-        } else {
-            input.classList.add('is-invalid');
+    evidenceInputs.forEach(function (input, index) {
+        const value = input.value.trim();
+        if (value === '') return;
+
+        filledLinks++;
+
+        let problem = '';
+        if (!/^https?:\/\//i.test(value)) {
+            problem = 'must start with http:// or https://, e.g. https://github.com/yourname.';
+        } else if (!isValidHttpUrl(value)) {
+            problem = 'does not look like a real web address. Check for typos or spaces.';
+        } else if (seenLinks.has(value.toLowerCase())) {
+            problem = 'is a duplicate. Remove it or enter a different link.';
         }
+        seenLinks.add(value.toLowerCase());
+
+        if (problem) {
+            input.classList.add('is-invalid');
+            evidenceMessages.push('Link ' + (index + 1) + ' ' + problem);
+        }
+    });
+
+    if (filledLinks === 0) {
+        if (evidenceInputs[0]) evidenceInputs[0].classList.add('is-invalid');
+        evidenceMessages.push('Add at least one evidence link, e.g. https://github.com/yourname/project.');
     }
 
-    if (hasUrlError) {
-        setError(null, evidenceErr, 'Please enter a valid URL (e.g. https://example.com).');
-    } else if (!hasValidEvidence) {
-        setError(null, evidenceErr, 'Add at least one evidence link.');
+    if (evidenceMessages.length > 0) {
+        setError(null, evidenceErr, evidenceMessages.join('<br>⚠️ '));
     }
 
     const statusText = portfolioForm.querySelector('.form-status');
@@ -688,6 +738,20 @@ container.addEventListener('submit', function (event) {
         statusText.textContent = 'Experience saved to "' + (active.displayName || 'Untitled') + '"!';
         statusText.className = 'form-status text-success small fw-bold';
     }
+});
+
+container.addEventListener('input', function (event) {
+    const input = event.target;
+    if (!input.classList.contains('is-invalid')) return;
+
+    const group = input.closest('.skills-container, .evidence-container');
+    if (!group) return;
+
+    input.classList.remove('is-invalid');
+    if (group.querySelector('.is-invalid')) return;
+
+    const err = group.parentElement.querySelector('.error-skills, .error-evidence');
+    if (err) err.textContent = '';
 });
 
 const themeToggle = document.getElementById('theme-toggle');
