@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -12,12 +13,9 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2));
 
 function readData() {
-  try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  if (!Array.isArray(data)) throw new Error('Data file is corrupted');
+  return data;
 }
 function writeData(data) {
   const temp = DATA_FILE + '.tmp';
@@ -34,13 +32,13 @@ function readBody(req) {
     req.on('data', chunk => {
       raw += chunk;
       if (raw.length > 1_000_000) {
-        reject(new Error('Request body is too large'));
+        reject(fail(413, 'Request body is too large'));
         req.destroy();
       }
     });
     req.on('end', () => {
       try { resolve(raw ? JSON.parse(raw) : {}); }
-      catch { reject(new Error('Invalid JSON format')); }
+      catch { reject(fail(400, 'Invalid JSON format')); }
     });
     req.on('error', reject);
   });
@@ -72,41 +70,87 @@ function validateItem(item) {
   if (item.category !== undefined && !['discover','mix','levelup'].includes(item.category)) return 'Invalid category';
   return null;
 }
-function validatePortfolio(p) {
-  if (!validText(p.id, 200) || !validText(p.displayName, 80) ||
-      !validText(p.whatIEnjoy, 1000) || !validText(p.whatIveTried, 1000) ||
-      !validText(p.whatImCuriousAbout, 1000) || !Array.isArray(p.items)) return 'Invalid portfolio fields';
-  const ids = new Set();
-  for (const item of p.items) {
-    const error = validateItem(item);
-    if (error) return error;
-    if (ids.has(item.id)) return 'Duplicate Portfolio Item ID';
-    ids.add(item.id);
-  }
+function validateProfile(p) {
+  if (!p || typeof p !== 'object' || Array.isArray(p)) return 'Invalid portfolio';
+  if (!validText(p.displayName, 80) || !validText(p.whatIEnjoy, 1000) ||
+      !validText(p.whatIveTried, 1000) || !validText(p.whatImCuriousAbout, 1000)) return 'Invalid portfolio fields';
   return null;
+}
+function profileFields(p) {
+  return {
+    displayName: p.displayName.trim(), whatIEnjoy: p.whatIEnjoy.trim(),
+    whatIveTried: p.whatIveTried.trim(), whatImCuriousAbout: p.whatImCuriousAbout.trim()
+  };
+}
+function fail(status, message) {
+  const e = new Error(message); e.status = status; return e;
+}
+// Each write reads the latest file, changes one thing and saves it in one synchronous step,
+// so simultaneous requests from different browsers cannot overwrite each other.
+async function handleApi(req, res, url) {
+  const m = url.pathname.match(/^\/api\/portfolios(?:\/([^/]+))?(?:\/items(?:\/([^/]+))?)?$/);
+  if (!m) throw fail(404, 'API route not found');
+  let pid, iid;
+  try { pid = m[1] && decodeURIComponent(m[1]); iid = m[2] && decodeURIComponent(m[2]); }
+  catch { throw fail(400, 'Bad request'); }
+  const isItems = url.pathname.includes('/items');
+  const find = list => {
+    const p = list.find(x => x.id === pid);
+    if (!p) throw fail(404, 'Portfolio not found');
+    return p;
+  };
+
+  if (req.method === 'GET' && !pid) return send(res, 200, readData());
+
+  if (req.method === 'POST' && !pid) {
+    const body = await readBody(req);
+    const error = validateProfile(body);
+    if (error) throw fail(400, error);
+    const list = readData();
+    const portfolio = { id: crypto.randomUUID(), ...profileFields(body), items: [] };
+    list.push(portfolio); writeData(list);
+    return send(res, 201, portfolio);
+  }
+  if (req.method === 'PUT' && pid && !isItems) {
+    const body = await readBody(req);
+    const error = validateProfile(body);
+    if (error) throw fail(400, error);
+    const list = readData(); const p = find(list);
+    Object.assign(p, profileFields(body)); writeData(list);
+    return send(res, 200, p);
+  }
+  if (req.method === 'DELETE' && pid && !isItems) {
+    const list = readData(); find(list);
+    writeData(list.filter(x => x.id !== pid));
+    return send(res, 200, { success: true });
+  }
+  if (req.method === 'POST' && pid && isItems && !iid) {
+    const item = await readBody(req);
+    const error = validateItem(item);
+    if (error) throw fail(400, error);
+    const list = readData(); const p = find(list);
+    if (p.items.some(x => x.id === item.id)) throw fail(409, 'This Item ID already exists in the selected Portfolio');
+    p.items.push(item); writeData(list);
+    return send(res, 201, item);
+  }
+  if (req.method === 'DELETE' && pid && isItems && iid) {
+    const list = readData(); const p = find(list);
+    if (!p.items.some(x => x.id === iid)) throw fail(404, 'Item not found');
+    p.items = p.items.filter(x => x.id !== iid); writeData(list);
+    return send(res, 200, { success: true });
+  }
+  throw fail(405, 'Method not allowed');
 }
 const server = http.createServer(async (req, res) => {
   let url;
   try { url = new URL(req.url, 'http://localhost'); }
   catch { return send(res, 400, 'Bad request', 'text/plain; charset=utf-8'); }
   if (url.pathname.startsWith('/api/')) {
-    if (req.method === 'GET' && url.pathname === '/api/portfolios') return send(res, 200, readData());
-    if (req.method === 'PUT' && url.pathname === '/api/portfolios') {
-      try {
-        const data = await readBody(req);
-        if (!Array.isArray(data)) return send(res, 400, { error: 'Expected an array of portfolios' });
-        const portfolioIds = new Set();
-        for (const p of data) {
-          const error = validatePortfolio(p);
-          if (error) return send(res, 400, { error });
-          if (portfolioIds.has(p.id)) return send(res, 400, { error: 'Duplicate Portfolio ID' });
-          portfolioIds.add(p.id);
-        }
-        writeData(data);
-        return send(res, 200, { success: true });
-      } catch (error) { return send(res, 400, { error: error.message }); }
+    try { return await handleApi(req, res, url); }
+    catch (error) {
+      const status = error.status || 500;
+      return send(res, status, { error: status === 500 ? 'Server error' : error.message });
     }
-    return send(res, 404, { error: 'API route not found' });
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
