@@ -34,15 +34,17 @@ function normalizeItem(item) {
 function normalizePortfolio(p) {
   return {...p, items:(p.items || []).map(normalizeItem)};
 }
-async function apiSave() {
-  const response = await fetch(API, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(portfolios)});
-  const result = await response.json();
+async function api(path, method='GET', body) {
+  const response = await fetch(API + path, {
+    method, headers: body ? {'Content-Type':'application/json'} : undefined,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || 'Could not save data');
+  return result;
 }
 async function load() {
-  const response = await fetch(API);
-  if (!response.ok) throw new Error('Cannot connect to server');
-  portfolios = (await response.json()).map(normalizePortfolio);
+  portfolios = (await api('')).map(normalizePortfolio);
   if (!portfolios.some(p => p.id === activeId)) activeId = portfolios[0]?.id || null;
   render();
 }
@@ -104,9 +106,11 @@ portfolioForm.addEventListener('submit',async e=>{
   fields.forEach(([sel,err])=>{const input=$(sel);if(!input.value.trim()){input.classList.add('is-invalid');$(err).textContent='This field is required.';valid=false;}});
   if(!valid)return;
   const values={displayName:$('#displayName').value.trim(),whatIEnjoy:$('#enjoy').value.trim(),whatIveTried:$('#tried').value.trim(),whatImCuriousAbout:$('#curious').value.trim()};
-  if(editingId){Object.assign(portfolios.find(p=>p.id===editingId),values);activeId=editingId;}
-  else {const p={id:id(),...values,items:[]};portfolios.push(p);activeId=p.id;}
-  try{await apiSave();editingId=null;portfolioForm.reset();$('#profile-form-title').textContent='Create your portfolio';$('#profile-submit').textContent='Create portfolio';$('#profile-cancel').classList.add('d-none');render();}
+  try{
+    if(editingId){await api('/'+encodeURIComponent(editingId),'PUT',values);activeId=editingId;}
+    else{const created=await api('','POST',values);activeId=created.id;}
+    await load();editingId=null;portfolioForm.reset();$('#profile-form-title').textContent='Create your portfolio';$('#profile-submit').textContent='Create portfolio';$('#profile-cancel').classList.add('d-none');
+  }
   catch(err){alert(err.message);}
 });
 $('#profile-cancel').addEventListener('click',()=>{editingId=null;portfolioForm.reset();clearProfileErrors();$('#profile-form-title').textContent='Create your portfolio';$('#profile-submit').textContent='Create portfolio';$('#profile-cancel').classList.add('d-none');});
@@ -121,8 +125,7 @@ portfolioList.addEventListener('click',async e=>{
     portfolioForm.scrollIntoView({behavior:'smooth',block:'center'});render();
   }
   if(b.dataset.action==='delete' && confirm('Delete this portfolio and all its items?')){
-    portfolios=portfolios.filter(x=>x.id!==p.id);if(activeId===p.id)activeId=portfolios[0]?.id||null;
-    try{await apiSave();render();}catch(err){alert(err.message);}
+    try{await api('/'+encodeURIComponent(p.id),'DELETE');await load();}catch(err){alert(err.message);}
   }
 });
 $('#add-portfolio').addEventListener('click',()=>{
@@ -169,16 +172,15 @@ itemContainer.addEventListener('submit',async e=>{
     reflection:{whatIDid:$('[name="did"]',form).value.trim(),whatILearned:$('[name="learned"]',form).value.trim(),challenge:$('[name="challenge"]',form).value.trim(),nextStep:$('[name="steps"]',form).value.trim()},
     evidence:$$('[name="evidence"]',form).map(x=>x.value.trim()).filter(Boolean)
   });
-  p.items.push(item);
-  try{await apiSave();render();form.reset();status.textContent='Saved to server successfully.';status.className='form-status text-success small fw-bold';}
-  catch(err){p.items.pop();status.textContent=err.message;status.className='form-status text-danger small';}
+  try{await api('/'+encodeURIComponent(p.id)+'/items','POST',item);await load();form.reset();status.textContent='Saved to server successfully.';status.className='form-status text-success small fw-bold';}
+  catch(err){status.textContent=err.message;status.className='form-status text-danger small';}
 });
 portfolioDisplay.addEventListener('click',async e=>{
   const copy=e.target.closest('[data-action="copy-item"]');
   if(copy){const p=activePortfolio();const item=p?.items.find(x=>x.id===copy.dataset.id);if(item){await navigator.clipboard.writeText(JSON.stringify(item,null,2));copy.textContent='Copied!';}return;}
   const b=e.target.closest('[data-action="delete-item"]');if(!b)return;
-  const p=activePortfolio();if(!p)return;p.items=p.items.filter(x=>x.id!==b.dataset.id);
-  try{await apiSave();render();}catch(err){alert(err.message);}
+  const p=activePortfolio();if(!p)return;
+  try{await api('/'+encodeURIComponent(p.id)+'/items/'+encodeURIComponent(b.dataset.id),'DELETE');await load();}catch(err){alert(err.message);}
 });
 /* Exchange panel: JSON paste/import and export */
 const exchange=node('section','card border-0 shadow-sm rounded-4 p-4 mt-4');
@@ -240,9 +242,9 @@ $('#save-import-button').addEventListener('click',async()=>{
     challenge:$('#review-challenge').value.trim(),nextStep:$('#review-next').value.trim()
   };
   if(Object.values(reflection).some(x=>!x)){status.textContent='Complete all four Reflection fields before saving.';status.className='text-danger small mt-2';return;}
-  pendingImport.reflection=reflection;target.items.push(pendingImport);activeId=target.id;
-  try{await apiSave();render();pendingImport=null;$('#import-review').classList.add('d-none');$('#import-json').value='';status.textContent='Imported and saved to server. The item is shown in Portfolio Items.';status.className='text-success small mt-2';}
-  catch(err){target.items.pop();status.textContent=err.message;status.className='text-danger small mt-2';}
+  pendingImport.reflection=reflection;activeId=target.id;
+  try{await api('/'+encodeURIComponent(target.id)+'/items','POST',pendingImport);await load();pendingImport=null;$('#import-review').classList.add('d-none');$('#import-json').value='';status.textContent='Imported and saved to server. The item is shown in Portfolio Items.';status.className='text-success small mt-2';}
+  catch(err){status.textContent=err.message;status.className='text-danger small mt-2';}
 });
 $('#export-button').addEventListener('click',()=>{
   const p=activePortfolio();if(!p){alert('Select a Portfolio first.');return;}
