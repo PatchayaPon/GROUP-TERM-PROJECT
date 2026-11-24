@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
-const DATA_DIR = path.join(ROOT, 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(ROOT, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'portfolios.json');
 const PORT = Number(process.env.PORT || 3000);
 
