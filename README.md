@@ -32,7 +32,7 @@ npm test             # automated tests
    systemctl status cs100-portfolio
    ```
    Adjust `User`, `WorkingDirectory` and the `node` path in the file if yours differ.
-5. Open `http://<EC2-PUBLIC-IP>:3000` from another device.
+5. Open `[http://54.226.135.169](http://54.226.135.169:3000/)` from another device.
 6. Persistence check: `sudo systemctl restart cs100-portfolio` and `sudo reboot` — data must remain.
 
 Never commit passwords, AWS credentials or `.pem` keys. If one is leaked, revoke/rotate it; deleting the file is not enough.
