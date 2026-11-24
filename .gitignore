@@ -1,6 +1,11 @@
 node_modules/
 .env
+.env.*
 *.pem
 *.key
+*.ppk
+.aws/
+credentials
+.DS_Store
 data/*.json
 data/*.tmp
