@@ -25,7 +25,7 @@ function writeData(data) {
   fs.renameSync(temp, DATA_FILE);
 }
 function send(res, status, data, type='application/json; charset=utf-8') {
-  res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
+  res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   res.end(type.startsWith('application/json') ? JSON.stringify(data) : data);
 }
 function readBody(req) {
@@ -86,7 +86,9 @@ function validatePortfolio(p) {
   return null;
 }
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  let url;
+  try { url = new URL(req.url, 'http://localhost'); }
+  catch { return send(res, 400, 'Bad request', 'text/plain; charset=utf-8'); }
   if (url.pathname.startsWith('/api/')) {
     if (req.method === 'GET' && url.pathname === '/api/portfolios') return send(res, 200, readData());
     if (req.method === 'PUT' && url.pathname === '/api/portfolios') {
@@ -107,6 +109,9 @@ const server = http.createServer(async (req, res) => {
     return send(res, 404, { error: 'API route not found' });
   }
 
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return send(res, 405, 'Method not allowed', 'text/plain; charset=utf-8');
+  }
   let requested = url.pathname;
   if (requested === '/') requested = '/index.html';
   const filePath = path.resolve(PUBLIC_DIR, '.' + requested);
@@ -122,4 +127,6 @@ const server = http.createServer(async (req, res) => {
     send(res, 200, content, types[ext] || 'application/octet-stream');
   });
 });
+server.on('clientError', (err, socket) => socket.end('HTTP/1.1 400 Bad Request\r\n\r\n'));
+process.on('uncaughtException', err => console.error('Unexpected error:', err));
 server.listen(PORT, '0.0.0.0', () => console.log(`Portfolio app running on port ${PORT}`));
