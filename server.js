@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = __dirname;
-const PUBLIC_DIR = ROOT;
+const PUBLIC_DIR = path.join(ROOT, 'public');
 const DATA_DIR = path.join(ROOT, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'portfolios.json');
 const PORT = Number(process.env.PORT || 3000);
@@ -107,15 +107,10 @@ const server = http.createServer(async (req, res) => {
     return send(res, 404, { error: 'API route not found' });
   }
 
-  let requested = decodeURIComponent(url.pathname);
+  let requested = url.pathname;
   if (requested === '/') requested = '/index.html';
   const filePath = path.resolve(PUBLIC_DIR, '.' + requested);
-  if (!filePath.startsWith(PUBLIC_DIR + path.sep) && filePath !== path.join(PUBLIC_DIR, 'index.html')) {
-    return send(res, 403, 'Forbidden', 'text/plain; charset=utf-8');
-  }
-  if (filePath.startsWith(DATA_DIR + path.sep) ||
-      ['server.js', 'package.json', '.gitignore'].includes(path.basename(filePath)) ||
-      requested.split('/').some(part => part.startsWith('.'))) {
+  if (!filePath.startsWith(PUBLIC_DIR + path.sep)) {
     return send(res, 403, 'Forbidden', 'text/plain; charset=utf-8');
   }
   fs.readFile(filePath, (error, content) => {
