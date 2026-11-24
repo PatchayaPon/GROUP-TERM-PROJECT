@@ -2,7 +2,7 @@
 
 Portfolio web app (Node.js, no database). Portfolios and items are stored as JSON on the server (`data/portfolios.json`); the browser only keeps the theme in localStorage.
 
-**Public URL (EC2):** `[http://54.226.135.169](http://54.226.135.169:3000/)`
+**Public URL (EC2):** `http://98.86.182.68/`
 
 ## Requirements
 - Node.js 18+ (no `npm install` needed, no dependencies)
@@ -32,7 +32,7 @@ npm test             # automated tests
    systemctl status cs100-portfolio
    ```
    Adjust `User`, `WorkingDirectory` and the `node` path in the file if yours differ.
-5. Open `[http://54.226.135.169](http://54.226.135.169:3000/)` from another device.
+5. Open `http://98.86.182.68/` from another device.
 6. Persistence check: `sudo systemctl restart cs100-portfolio` and `sudo reboot` — data must remain.
 
 Never commit passwords, AWS credentials or `.pem` keys. If one is leaked, revoke/rotate it; deleting the file is not enough.
