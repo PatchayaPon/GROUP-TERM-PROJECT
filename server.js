@@ -46,29 +46,48 @@ function readBody(req) {
 function validText(v, max=2000) {
   return typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 }
+const ITEM_FIELDS = ['id','title','type','date','role','description','skills','reflection','evidence',
+  'challengeId','hostGroup','category','schemaVersion'];
+function isRealDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(value + 'T00:00:00Z');
+  return !isNaN(d) && d.toISOString().slice(0, 10) === value;
+}
 function validateItem(item) {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return 'Item must be a JSON object';
   const requiredStrings = ['id','title','type','date','role','description'];
   for (const key of requiredStrings) {
     if (!validText(item[key], key === 'description' ? 5000 : 1000)) return `Invalid ${key}`;
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(item.date)) return 'Date must use YYYY-MM-DD';
-  if (!Array.isArray(item.skills) || item.skills.length < 1 ||
-      !item.skills.every(s => validText(s, 100))) return 'Skills must be a non-empty string array';
-  if (!item.reflection || typeof item.reflection !== 'object') return 'Reflection is required';
+  if (!isRealDate(item.date)) return 'Date must be a real date in YYYY-MM-DD format';
+  if (!Array.isArray(item.skills) || item.skills.length < 1 || item.skills.length > 20 ||
+      !item.skills.every(s => validText(s, 100))) return 'Skills must be a non-empty string array (max 20)';
+  if (!item.reflection || typeof item.reflection !== 'object' || Array.isArray(item.reflection)) return 'Reflection is required';
   for (const key of ['whatIDid','whatILearned','challenge','nextStep']) {
     if (!validText(item.reflection[key], 5000)) return `Invalid reflection.${key}`;
   }
-  if (!Array.isArray(item.evidence) || item.evidence.length < 1 ||
+  if (!Array.isArray(item.evidence) || item.evidence.length < 1 || item.evidence.length > 10 ||
       !item.evidence.every(url => {
-        if (typeof url !== 'string') return false;
+        if (typeof url !== 'string' || url.length > 2000) return false;
         try { const u = new URL(url); return ['http:','https:'].includes(u.protocol); }
         catch { return false; }
-      })) return 'Evidence must contain at least one valid URL';
+      })) return 'Evidence must contain 1-10 valid http/https URLs';
   for (const key of ['challengeId','hostGroup','category','schemaVersion']) {
-    if (item[key] !== undefined && typeof item[key] !== 'string') return `${key} must be a string`;
+    if (item[key] !== undefined && !validText(item[key], 200)) return `${key} must be a string`;
   }
   if (item.category !== undefined && !['discover','mix','levelup'].includes(item.category)) return 'Invalid category';
+  if (item.schemaVersion !== undefined && item.schemaVersion !== '1.0') return 'Unsupported schemaVersion';
   return null;
+}
+// Keep only known fields so unexpected data from a client is never written to the file.
+function sanitizeItem(item) {
+  const clean = {};
+  for (const key of ITEM_FIELDS) if (item[key] !== undefined) clean[key] = item[key];
+  clean.reflection = {
+    whatIDid: item.reflection.whatIDid, whatILearned: item.reflection.whatILearned,
+    challenge: item.reflection.challenge, nextStep: item.reflection.nextStep
+  };
+  return clean;
 }
 function validateProfile(p) {
   if (!p || typeof p !== 'object' || Array.isArray(p)) return 'Invalid portfolio';
@@ -125,9 +144,10 @@ async function handleApi(req, res, url) {
     return send(res, 200, { success: true });
   }
   if (req.method === 'POST' && pid && isItems && !iid) {
-    const item = await readBody(req);
-    const error = validateItem(item);
+    const body = await readBody(req);
+    const error = validateItem(body);
     if (error) throw fail(400, error);
+    const item = sanitizeItem(body);
     const list = readData(); const p = find(list);
     if (p.items.some(x => x.id === item.id)) throw fail(409, 'This Item ID already exists in the selected Portfolio');
     p.items.push(item); writeData(list);
