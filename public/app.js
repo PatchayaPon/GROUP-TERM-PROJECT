@@ -209,19 +209,38 @@ function updateTargets(){
   portfolios.forEach(p=>{const opt=node('option','',p.displayName);opt.value=p.id;select.append(opt);});
   if(activeId)select.value=activeId;
 }
+function isRealDate(v){
+  if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;
+  const d=new Date(v+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===v;
+}
+/* Strict check of a pasted Portfolio Item (no type coercion). Returns an error message or null. */
+function validateImported(it){
+  for(const k of ['id','title','type','date','role','description']){
+    if(typeof it[k]!=='string'||!it[k].trim())return `Field "${k}" must be a non-empty text.`;
+  }
+  if(!isRealDate(it.date))return 'Field "date" must be a real date in YYYY-MM-DD format.';
+  if(!Array.isArray(it.skills)||!it.skills.length||!it.skills.every(x=>typeof x==='string'&&x.trim()))return 'Field "skills" must be a non-empty array of text.';
+  const r=it.reflection;
+  if(!r||typeof r!=='object'||Array.isArray(r))return 'Field "reflection" must be an object.';
+  for(const k of ['whatIDid','whatILearned','challenge','nextStep']){
+    if(typeof r[k]!=='string')return `Field "reflection.${k}" must be text.`;
+  }
+  if(!Array.isArray(it.evidence)||!it.evidence.length||!it.evidence.every(x=>typeof x==='string'&&validUrl(x)))return 'Field "evidence" must be an array of at least one valid http/https URL.';
+  for(const k of ['challengeId','hostGroup','category','schemaVersion']){
+    if(it[k]!==undefined&&typeof it[k]!=='string')return `Field "${k}" must be text.`;
+  }
+  if(it.category!==undefined&&!['discover','mix','levelup'].includes(it.category))return 'Field "category" must be discover, mix or levelup.';
+  if(it.schemaVersion!==undefined&&it.schemaVersion!=='1.0')return 'Unsupported schemaVersion (expected "1.0").';
+  return null;
+}
 let pendingImport = null;
 $('#import-button').addEventListener('click',()=>{
   const status=$('#import-status');let item;
   try{item=JSON.parse($('#import-json').value);}catch{status.textContent='Invalid JSON format. Please check your pasted text.';status.className='text-danger small mt-2';return;}
   if(!item || typeof item!=='object' || Array.isArray(item)){status.textContent='JSON must contain one Portfolio Item object.';status.className='text-danger small mt-2';return;}
+  const problem=validateImported(item);
+  if(problem){status.textContent=problem;status.className='text-danger small mt-2';return;}
   item=normalizeItem(item);
-  const required=['id','title','type','date','role','description'];
-  if(required.some(k=>!item[k]) || !Array.isArray(item.skills) || !item.skills.length ||
-    !Array.isArray(item.evidence) || !item.evidence.length || item.evidence.some(x=>!validUrl(x))){
-    status.textContent='Missing or invalid fields. Required: title/type/date/role/description, skills[], reflection object, and evidence URL[].';
-    status.className='text-danger small mt-2';return;
-  }
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(item.date)){status.textContent='Date must use YYYY-MM-DD.';status.className='text-danger small mt-2';return;}
   pendingImport=item;
   $('#review-did').value=item.reflection.whatIDid;
   $('#review-learned').value=item.reflection.whatILearned;
