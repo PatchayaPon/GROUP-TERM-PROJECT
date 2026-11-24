@@ -177,11 +177,20 @@ itemContainer.addEventListener('submit',async e=>{
 });
 portfolioDisplay.addEventListener('click',async e=>{
   const copy=e.target.closest('[data-action="copy-item"]');
-  if(copy){const p=activePortfolio();const item=p?.items.find(x=>x.id===copy.dataset.id);if(item){await navigator.clipboard.writeText(JSON.stringify(item,null,2));copy.textContent='Copied!';}return;}
+  if(copy){const p=activePortfolio();const item=p?.items.find(x=>x.id===copy.dataset.id);if(item){const ok=await copyText(JSON.stringify(item,null,2));copy.textContent=ok?'Copied!':'Copy failed - use the Host panel textarea';}return;}
   const b=e.target.closest('[data-action="delete-item"]');if(!b)return;
   const p=activePortfolio();if(!p)return;
   try{await api('/'+encodeURIComponent(p.id)+'/items/'+encodeURIComponent(b.dataset.id),'DELETE');await load();}catch(err){alert(err.message);}
 });
+async function copyText(text, source){
+  try{ if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true;} }catch{}
+  const t=source||document.createElement('textarea');
+  if(!source){t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.append(t);}
+  t.focus();t.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch{}
+  if(!source)t.remove();
+  return ok;
+}
 /* Exchange panel: JSON paste/import and export */
 const exchange=node('section','card border-0 shadow-sm rounded-4 p-4 mt-4');
 exchange.innerHTML=`<h2 class="h5 fw-bold">Portfolio Item Exchange</h2>
@@ -204,6 +213,64 @@ exchange.innerHTML=`<h2 class="h5 fw-bold">Portfolio Item Exchange</h2>
 <p class="small text-muted">Download only the selected Portfolio as my-portfolio.json.</p>
 <button id="export-button" class="btn btn-outline-primary">Export my-portfolio.json</button>`;
 $('#portfolio-display').parentElement.append(exchange);
+
+/* Host panel: generate a Portfolio Item JSON for a participant who completed a challenge */
+const host=node('section','card border-0 shadow-sm rounded-4 p-4 mt-4');
+host.innerHTML=`<h2 class="h5 fw-bold">Host Booth: Give Portfolio Item JSON</h2>
+<p class="small text-muted">After a friend completes your challenge, generate their Portfolio Item JSON and let them copy it.</p>
+<label class="form-label fw-bold" for="host-challenge">Challenge</label>
+<select id="host-challenge" class="form-select mb-2"></select>
+<p id="host-info" class="small text-muted"></p>
+<label class="form-label fw-bold" for="host-name">Participant name</label>
+<input id="host-name" class="form-control mb-2" maxlength="80" placeholder="e.g. Alex">
+<button id="host-generate" class="btn btn-success mb-2" type="button">Generate JSON</button>
+<div id="host-status" class="small" aria-live="polite"></div>
+<textarea id="host-output" class="form-control mb-2 font-monospace" rows="10" readonly placeholder="Generated JSON appears here"></textarea>
+<div class="d-flex gap-2 flex-wrap">
+  <button id="host-copy" class="btn btn-outline-primary" type="button">Copy JSON</button>
+  <button id="host-download" class="btn btn-outline-secondary" type="button">Download portfolio-item.json</button>
+</div>`;
+exchange.before(host);
+const challenges=window.CHALLENGES||[];
+challenges.forEach((c,i)=>{const o=node('option','',`${c.challengeId} - ${c.title}`);o.value=i;$('#host-challenge').append(o);});
+function showChallengeInfo(){
+  const c=challenges[$('#host-challenge').value];
+  $('#host-info').textContent=c?`How to play: ${c.howToPlay} Success: ${c.successCriteria}`:'No challenge configured in challenges.js.';
+}
+$('#host-challenge').addEventListener('change',showChallengeInfo);showChallengeInfo();
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+$('#host-generate').addEventListener('click',()=>{
+  const status=$('#host-status');const c=challenges[$('#host-challenge').value];
+  const name=$('#host-name').value.trim();
+  if(!c){status.textContent='No challenge configured.';status.className='small text-danger';return;}
+  if(!name){status.textContent='Enter the participant name first.';status.className='small text-danger';return;}
+  const item={
+    id:`${c.challengeId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`,
+    title:c.title,type:'Challenge',date:today(),role:'Participant',
+    description:`${name} completed the challenge "${c.title}" at the ${window.HOST_GROUP||'host'} booth. ${c.howToPlay}`,
+    skills:c.skills,
+    reflection:{
+      whatIDid:`I completed "${c.title}" at the ${window.HOST_GROUP||'host'} booth.`,
+      whatILearned:'(Edit this: what did you learn?)',
+      challenge:'(Edit this: what was difficult?)',
+      nextStep:'(Edit this: what will you try next?)'
+    },
+    evidence:[c.evidenceUrl],challengeId:c.challengeId,hostGroup:window.HOST_GROUP||'',category:c.category,schemaVersion:'1.0'
+  };
+  $('#host-output').value=JSON.stringify(item,null,2);
+  status.textContent='JSON generated. Ask the participant to copy it and paste it into their own app.';status.className='small text-success';
+});
+$('#host-copy').addEventListener('click',async()=>{
+  const out=$('#host-output');const status=$('#host-status');
+  if(!out.value){status.textContent='Generate JSON first.';status.className='small text-danger';return;}
+  const ok=await copyText(out.value,out);
+  status.textContent=ok?'Copied to clipboard.':'Copy failed. The text is selected - press Ctrl+C.';status.className=ok?'small text-success':'small text-danger';
+});
+$('#host-download').addEventListener('click',()=>{
+  const out=$('#host-output');if(!out.value)return;
+  const url=URL.createObjectURL(new Blob([out.value],{type:'application/json'}));
+  const a=node('a');a.href=url;a.download='portfolio-item.json';a.click();URL.revokeObjectURL(url);
+});
 function updateTargets(){
   const select=$('#import-target');select.innerHTML='';
   portfolios.forEach(p=>{const opt=node('option','',p.displayName);opt.value=p.id;select.append(opt);});
