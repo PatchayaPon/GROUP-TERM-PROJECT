@@ -1,13 +1,13 @@
 /* Challenge booth config. Edit this file to match your group's booth before the demo. */
-window.HOST_GROUP = 'CS100 Group';
+window.HOST_GROUP = 'CS100 Group 15';
 window.CHALLENGES = [
   {
     challengeId: 'CH-001',
-    title: 'Mix Skills: Two-Interest Idea',
-    category: 'mix', // discover | mix | levelup
-    howToPlay: 'Pick two of your interests or skills and combine them into one new idea in 5-10 minutes.',
-    successCriteria: 'The player explains the idea in one or two sentences and sketches or writes it down.',
-    skills: ['Creativity', 'Problem solving'],
+    title: 'Bug Hunt: Find the Wrong Line',
+    category: 'levelup', // discover | mix | levelup
+    howToPlay: 'Read a short code snippet and find the line that has a bug within 5-10 minutes.',
+    successCriteria: 'The player points to the wrong line and explains why it is wrong and how to fix it.',
+    skills: ['Code reading', 'Debugging'],
     evidenceUrl: 'https://github.com/WasinutJ/GROUP-TERM-PROJECT'
   }
 ];
