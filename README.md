@@ -2,7 +2,7 @@
 
 Portfolio web app (Node.js, no database). Portfolios and items are stored as JSON on the server (`data/portfolios.json`); the browser only keeps the theme in localStorage.
 
-**Public URL (EC2):** `[http://54.226.135.169](http://54.226.135.169:3000/)` (update before the demo)
+**Public URL (EC2):** `[http://54.226.135.169](http://54.226.135.169:3000/)`
 
 ## Requirements
 - Node.js 18+ (no `npm install` needed, no dependencies)
